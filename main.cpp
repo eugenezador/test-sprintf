@@ -1,13 +1,20 @@
-
+/*
 #include <stdio.h>
 #include <stdarg.h>
 
+void funk(va_list factor, char* t) {
+    *t = va_arg(factor, char);
+    printf("funk = %d\n", *t);
+}
+
+
 void display(const char* format, ...)
 {
-    int d;
+    char d = 0;
     double f;
     va_list factor;         // указатель на необязательный параметр
     va_start(factor, format);   // устанавливаем указатель
+
 
     for( const char *c = format;*c; c++)
     {
@@ -18,9 +25,9 @@ void display(const char* format, ...)
         }
         switch(*++c)    // если символ - %, то переходим к следующему символу
         {
-            case 'd':
-                d = va_arg(factor, int);
-                printf("d = %d\n", d);
+            case 'c':
+                funk(factor, &d);
+                printf("d = %c\n", d);
                 break;
             case 'f':
                 f = va_arg(factor, double);
@@ -33,15 +40,14 @@ void display(const char* format, ...)
     va_end(factor);
 }
 
+
 int main(void)
 {
-    display("%d : %d\n", 24, 68);
+    display("%c : %c\n", '-', '+');
     return 0;
 }
+*/
 
-
-
-/*
 
 
 
@@ -75,17 +81,9 @@ typedef struct {
 
 int s21_sprintf(char *str, const char *format, ...);
 
-const char *parse_flags(st_format_item *format_item, const char *format);
-
-const char* parse_width(st_format_item *format_item, const char *format);
-
-const char* parse_precision(st_format_item *format_item, const char *format);
-
 const char *get_number(const char *format, int *value);
 
 int is_number(char c);
-
-const char *parse_length(st_format_item *format_item, const char *format);
 
 const char *parse_specifier(st_format_item *format_item, const char *format);
 
@@ -94,12 +92,13 @@ void arg_selector(st_format_item format_item, char *buf,
 
 void int_to_string(long long int_value, char* result);
 
-char* append_to_string(char *string, char *temp);
+char* add_to_string(char *string, char *temp);
 
     int main() {
+        printf("hello\n");
         char str[255] ={'\0'};
-        s21_sprintf(str, "hello %d , %d", 41, 42);
-        printf("res str : %s\n", str);
+        s21_sprintf(str, "%c : %d\n", '*', 41);
+        printf("res str = %s\n", str);
         return 0;
     }
 
@@ -125,19 +124,14 @@ int s21_sprintf(char *str, const char *format, ...) {
         format_item.length = 0;
         format_item.specifier = 0;
     }
-//    format = parse_flags(&format_item, format);
-//    format = parse_width(&format_item, format);
-//    if (*format == '.') {
-//      format++;
-//      format = parse_precision(&format_item, format);
-//    }
-//    format = parse_length(&format_item, format);
+    printf("format = %c\n", *format);
     format = parse_specifier(&format_item, format);
-    printf("spec = %c\n", format_item.specifier);
 
-
+    printf("buf = %s\n", buf);
     arg_selector(format_item, buf, ptr);
-    str = append_to_string(str, buf);
+    printf("buf = %s\n", buf);
+
+    str = add_to_string(str, buf);
   }
 
   va_end(ptr);
@@ -145,37 +139,7 @@ int s21_sprintf(char *str, const char *format, ...) {
   return str - str_begin;
 }
 
-const char* parse_flags(st_format_item *format_item, const char *format) {
-  while (*format == '-' || *format == '+' || *format == ' ') {
-    switch (*format) {
-      case '-':
-        format_item->minus = 1;
-        break;
-      case '+':
-        format_item->plus = 1;
-        break;
-      case ' ':
-        format_item->space = 1;
-        break;
-    }
-    format++;
-  }
-  return format;
-}
 
-const char* parse_width(st_format_item *format_item, const char *format) {
-  int width = 0;
-  format = get_number(format, &width);
-  format_item->width = width;
-  return format;
-}
-
-const char* parse_precision(st_format_item *format_item, const char *format) {
-  int precision = 0;
-  format = get_number(format, &precision);
-  format_item->precision = precision;
-  return format;
-}
 
 const char* get_number(const char *format, int *value) {
   char tmp_digit[4] = {'\0'};
@@ -200,14 +164,6 @@ int is_number(char c) {
   return result;
 }
 
-const char* parse_length(st_format_item *format_item, const char *format) {
-  if (*format == 'h' || *format == 'h') {
-    format_item->length = *format;
-    format++;
-  }
-  return format;
-}
-
 const char* parse_specifier(st_format_item *format_item, const char *format) {
   if (*format == 'c' || *format == 'd' || *format == 'i' || *format == 'f' ||
       *format == 's' || *format == 'u') {
@@ -220,19 +176,18 @@ const char* parse_specifier(st_format_item *format_item, const char *format) {
 void arg_selector(st_format_item format_item, char *buf,
                   va_list ptr) {
 
-    printf("__arg selector function__\n");
-  char char_value = 'c';
+  char char_value = '\0';
   int int_value = 0;
   char temp_string[BUF_SIZE] = {'\0'};
 
   if (format_item.specifier == 'c') {
-    char_value = va_arg(ptr, char);
+    char_value = va_arg(ptr, int);
     *buf = char_value;
-    buf++;
+    printf("2buf = %s\n", buf);
   } else if (format_item.specifier == 'd' || format_item.specifier == 'i') {
     int_value = va_arg(ptr, int);
     int_to_string(int_value, temp_string);
-    append_to_string(buf, temp_string);
+    add_to_string(buf, temp_string);
     }
 }
 
@@ -272,16 +227,13 @@ void int_to_string(long long int_value, char* result) {
     }
 }
 
-char *append_to_string(char *string, char *temp) {
-    printf("str = %s\n", string);
-    printf("temp = %s\n", temp);
+char* add_to_string(char *string, char *temp) {
   while(*temp) {
     *string = *temp;
-      printf("str : %c : tmp : %c\n", *string, *temp);
     string++;
     temp++;
   }
-  printf("add int str = %c\n", *string);
+  // rerurn current string pos
   return string;
 }
-*/
+
