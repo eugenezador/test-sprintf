@@ -1,3 +1,51 @@
+
+#include <stdio.h>
+#include <stdarg.h>
+
+void display(const char* format, ...)
+{
+    int d;
+    double f;
+    va_list factor;         // указатель на необязательный параметр
+    va_start(factor, format);   // устанавливаем указатель
+
+    for( const char *c = format;*c; c++)
+    {
+        if(*c!='%')
+        {
+            printf("%c", *c);
+            continue;
+        }
+        switch(*++c)    // если символ - %, то переходим к следующему символу
+        {
+            case 'd':
+                d = va_arg(factor, int);
+                printf("d = %d\n", d);
+                break;
+            case 'f':
+                f = va_arg(factor, double);
+                printf("%.2lf", f);
+                break;
+            default:
+                printf("%c", *c);
+        }
+    }
+    va_end(factor);
+}
+
+int main(void)
+{
+    display("%d : %d\n", 24, 68);
+    return 0;
+}
+
+
+
+/*
+
+
+
+
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -41,12 +89,12 @@ const char *parse_length(st_format_item *format_item, const char *format);
 
 const char *parse_specifier(st_format_item *format_item, const char *format);
 
-char* arg_selector(st_format_item format_item, const char *format, char *str,
+void arg_selector(st_format_item format_item, char *buf,
                   va_list ptr);
 
 void int_to_string(long long int_value, char* result);
 
-char *add_int_to_str(char *str, char *temp_string);
+char* append_to_string(char *string, char *temp);
 
     int main() {
         char str[255] ={'\0'};
@@ -60,16 +108,15 @@ int s21_sprintf(char *str, const char *format, ...) {
   char *str_begin = str;
   va_list ptr;
   va_start(ptr, format);
+  char buf[BUF_SIZE] = {'\0'};
   while (*format) {
     if (*format != '%') {
       *str = *format;
-      printf("1str = %c\n", *str);
       str++;
       format++;
       continue;
     } else {
         format++;
-        //  flags
         format_item.minus = 0;
         format_item.plus = 0;
         format_item.space = 0;
@@ -78,7 +125,6 @@ int s21_sprintf(char *str, const char *format, ...) {
         format_item.length = 0;
         format_item.specifier = 0;
     }
-    printf("2format = %c\n", *format);
 //    format = parse_flags(&format_item, format);
 //    format = parse_width(&format_item, format);
 //    if (*format == '.') {
@@ -89,8 +135,9 @@ int s21_sprintf(char *str, const char *format, ...) {
     format = parse_specifier(&format_item, format);
     printf("spec = %c\n", format_item.specifier);
 
-    str = arg_selector(format_item, format, str, ptr);
-    printf("oo str = %c\n", *str);
+
+    arg_selector(format_item, buf, ptr);
+    str = append_to_string(str, buf);
   }
 
   va_end(ptr);
@@ -170,24 +217,23 @@ const char* parse_specifier(st_format_item *format_item, const char *format) {
   return format;
 }
 
-char* arg_selector(st_format_item format_item, const char *format, char *str,
+void arg_selector(st_format_item format_item, char *buf,
                   va_list ptr) {
+
+    printf("__arg selector function__\n");
   char char_value = 'c';
   int int_value = 0;
   char temp_string[BUF_SIZE] = {'\0'};
 
   if (format_item.specifier == 'c') {
     char_value = va_arg(ptr, char);
-    *str = char_value;
-    str++;
+    *buf = char_value;
+    buf++;
   } else if (format_item.specifier == 'd' || format_item.specifier == 'i') {
     int_value = va_arg(ptr, int);
-    printf("int value = %d\n", int_value);
     int_to_string(int_value, temp_string);
-    printf("temp str = %s\n", temp_string);
-    str = add_int_to_str(str, temp_string);
+    append_to_string(buf, temp_string);
     }
-  return str;
 }
 
 void int_to_string(long long int_value, char* result) {
@@ -226,16 +272,16 @@ void int_to_string(long long int_value, char* result) {
     }
 }
 
-char* add_int_to_str(char *str, char *temp_string) {
-    printf("str = %s\n", str);
-    printf("temp = %s\n", temp_string);
-  while(*temp_string) {
-    *str = *temp_string;
-      printf("str : %c : tmp : %c\n", *str, *temp_string);
-    str++;
-    temp_string++;
+char *append_to_string(char *string, char *temp) {
+    printf("str = %s\n", string);
+    printf("temp = %s\n", temp);
+  while(*temp) {
+    *string = *temp;
+      printf("str : %c : tmp : %c\n", *string, *temp);
+    string++;
+    temp++;
   }
-  printf("add int str = %c\n", *str);
-  return str;
+  printf("add int str = %c\n", *string);
+  return string;
 }
-
+*/
