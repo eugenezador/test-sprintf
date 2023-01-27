@@ -50,7 +50,7 @@ char *add_int_to_str(char *str, char *temp_string);
 
     int main() {
         char str[255] ={'\0'};
-        s21_sprintf(str, "hello %d", 41);
+        s21_sprintf(str, "hello %d , %d", 41, 42);
         printf("res str : %s\n", str);
         return 0;
     }
