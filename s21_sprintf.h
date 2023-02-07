@@ -5,10 +5,13 @@
 
 // нужно реализовать atoi
 // используется стандартный memset
+///////////////////
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+/////////////////
 
 #define BUF_SIZE 4096
 
@@ -20,13 +23,14 @@ typedef struct {
   int minus;
   int plus;
   int space;
-
-  unsigned int width;
-
-  unsigned int precision;
-
+    ////
+  int width;
+    ////
+  int precision;
+  int precision_set;
+    ////
   char length;
-
+    ////
   char specifier;
 
 } st_format_item;
@@ -47,24 +51,37 @@ const char *parse_length(st_format_item *format_item, const char *format);
 
 const char *parse_specifier(st_format_item *format_item, const char *format);
 
-void arg_selector(st_format_item format_item, char *buf, va_list args);
+void arg_selector(st_format_item format_item, char *result, va_list args);
 
-void char_processing(char *buf, va_list args, st_format_item format_item);
+void char_processing(char *result, va_list args, st_format_item format_item);
 
-void int_processing(char *buf, va_list args, char *temp, st_format_item format_item);
+void int_processing(char *result, va_list args, char *temp,
+                    st_format_item format_item, char *formated_temp);
 
-void u_int_processing(char *buf, va_list args, char *temp, st_format_item format_item);
+void u_int_processing(char *result, va_list args, char *temp,
+                      st_format_item format_item, char *formated_temp);
 
-void s_processing(char *buf, va_list args, st_format_item format_item);
+void s_processing(char *result, va_list args, st_format_item format_item);
 
-void f_processing(char *buf, st_format_item format_item, va_list args,
+void f_processing(char *result, st_format_item format_item, va_list args,
                   char *temp);
 
 void int_to_string(long long int_value, char *result);
 
-char *add_to_string(char *string, char *temp);
+char *add_to_string(char *result, char *temp);
 
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result);
+
+//void double_to_string(long double val, char *ret, st_format_item f);
+
+void presicion_processing(st_format_item format_item, char *value,
+                          char *result);
+
+void flags_processing(st_format_item format_item, char *value, char *result);
+
+void add_width_spaces_to_end(char *result, int width, int value_len);
+
+int add_width_spaces_first(char *result, int width, int value_len);
 
 #endif  //  SRC_S21_SPRINTF_H_
