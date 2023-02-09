@@ -304,36 +304,7 @@ void double_to_string(long double double_value, st_format_item format_item,
   strcat(buf, i_temp);
 
   result = add_to_string(result, buf);
-}
-
-
-//  right = roundl(right);
-//  i_right = right;
-
-//  printf("1 left = %lld\n", i_left);
-//  printf("1 right = %lld\n", i_right);
-
-//  int_to_string(i_left, buf);
-//  result = add_to_string(result, buf);
-//  if(format_item.precision_set && format_item.precision != 0) {
-//      char dot[2] = ".";
-//     result = add_to_string(result, dot /*"."*/);
-
-
-//  memset(buf, '\0', 80);
-
-//  int_to_string(i_right, buf);
-
-
-//  // костыль если значение 0
-//  if (buf[0] == '0') {
-//    for (int i = 1; i < format_item.precision; i++) {
-//      buf[i] = '0';
-//    }
-//  }
-
-//  result = add_to_string(result, buf);
-//  }
+  }
 }
 
 void presicion_processing(st_format_item format_item, char *value,
