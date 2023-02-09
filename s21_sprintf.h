@@ -57,6 +57,8 @@ void arg_selector(st_format_item format_item, char *result, va_list args);
 
 void char_processing(char *result, va_list args, st_format_item format_item);
 
+void do_char(st_format_item args, char *result, char c_value);
+
 void int_processing(char *result, va_list args, char *temp,
                     st_format_item format_item, char *formated_temp);
 

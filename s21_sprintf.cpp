@@ -153,9 +153,51 @@ void char_processing(char *result, va_list args, st_format_item format_item) {
     // !!!!!!!!!!!
     // *result = c_value;
   } else {
-    char c_value = va_arg(args, int);
-    *result = c_value;
+    char c;
+    c = va_arg(args, int);
+    do_char(format_item, result, c);
   }
+}
+
+//void do_wide_char(flags f, char *buff, wchar_t w_c) {
+//    if (!f.minus && f.width) {
+//        char tmp[BUFF_SIZE] = {'\0'};
+//        wcstombs(tmp, &w_c, BUFF_SIZE);
+//        for (size_t i = 0; i < f.width - strlen(tmp); i++)
+//            buff[i] = ' ';
+//        strcat(buff, tmp);
+//    } else if (f.width) {
+//        wcstombs(buff, &w_c, BUFF_SIZE);
+//        for (int i = strlen(buff); i < f.width; i++)
+//            buff[i] = ' ';
+//    } else {
+//        wcstombs(buff, &w_c, BUFF_SIZE);
+//    }
+//}
+
+void do_char(st_format_item args, char *result, char c_value) {
+    int i = 0;
+    int width = args.width;
+    if (!args.minus && width) {
+        while(i < width) {
+            *result = ' ';
+            if(i == width - 1) {
+                *result = c_value;
+            }
+            result++;
+            i++;
+        }
+    } else if (width) {
+        *result = c_value;
+        result++;
+        while(i < width){
+            *result = ' ';
+            result++;
+        }
+    } else {
+        *result = c_value;
+        result++;
+    }
 }
 
 void int_processing(char *result, va_list args, char *temp,
@@ -207,7 +249,59 @@ void s_processing(char *result, va_list args, st_format_item format_item) {
     char *s_value = va_arg(args, char *);
     add_to_string(result, s_value);
   }
+
+
+//  if (f.length == 'l') {
+//      wchar_t *wstr = va_arg(va, wchar_t *);
+//      format_wide_string(f, buff, wstr);
+//  } else {
+//      char *str = va_arg(va, char *);
+//      format_string(f, buff, str);
+//  }
 }
+
+//void do_string(flags f, char *buff, char *str) {
+//    char tmp[BUFF_SIZE] = {'\0'};
+//    strcpy(tmp, str);
+//    if (f.is_precision_set)
+//        tmp[f.precision] = '\0';
+
+//    int shift = f.width - strlen(tmp);
+//    int len = strlen(tmp);
+
+//    if (f.minus && shift > 0) {
+//        strcpy(buff, tmp);
+//        memset(buff + len, ' ', shift);
+//    } else if (shift > 0) {
+//        memset(buff, ' ', shift);
+//        strcpy(buff + shift, tmp);
+//    } else {
+//        strcpy(buff, tmp);
+//    }
+//}
+
+//void do_wide_string(flags f, char *buff, wchar_t *wstr) {
+//    char tmp[BUFF_SIZE] = {'\0'};
+//    char str[BUFF_SIZE] = {'\0'};
+
+//    wcstombs(str, wstr, BUFF_SIZE);
+//    strcpy(tmp, str);
+//    if (f.is_precision_set)
+//        tmp[f.precision] = '\0';
+
+//    int shift = f.width - strlen(tmp);
+//    int len = strlen(tmp);
+
+//    if (f.minus && shift > 0) {
+//        strcpy(buff, tmp);
+//        memset(buff + len, ' ', shift);
+//    } else if (shift > 0) {
+//        memset(buff, ' ', shift);
+//        strcpy(buff + shift, tmp);
+//    } else {
+//        strcpy(buff, tmp);
+//    }
+//}
 
 void f_processing(char *result, st_format_item format_item, va_list args,
                   char *temp) {
