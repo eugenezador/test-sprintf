@@ -67,6 +67,8 @@ void u_int_processing(char *result, va_list args, char *temp,
 
 void s_processing(char *result, va_list args, st_format_item format_item);
 
+void do_string(st_format_item format_item, char *result, char *s_value);
+
 void f_processing(char *result, st_format_item format_item, va_list args,
                   char *temp);
 

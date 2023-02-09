@@ -242,43 +242,35 @@ void u_int_processing(char *result, va_list args, char *temp,
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
   if (format_item.length == 'l') {
-    // wchar_t *s_value = va_arg(args, wchar_t *);
-
-    // what is wchar ? how to process it?
+//      wchar_t *wstr = va_arg(args, wchar_t *);
+//      format_wide_string(f, buff, wstr);
   } else {
     char *s_value = va_arg(args, char *);
-    add_to_string(result, s_value);
+    do_string(format_item, result, s_value);
+//    add_to_string(result, s_value);
   }
-
-
-//  if (f.length == 'l') {
-//      wchar_t *wstr = va_arg(va, wchar_t *);
-//      format_wide_string(f, buff, wstr);
-//  } else {
-//      char *str = va_arg(va, char *);
-//      format_string(f, buff, str);
-//  }
 }
 
-//void do_string(flags f, char *buff, char *str) {
-//    char tmp[BUFF_SIZE] = {'\0'};
-//    strcpy(tmp, str);
-//    if (f.is_precision_set)
-//        tmp[f.precision] = '\0';
+void do_string(st_format_item format_item, char *result, char *s_value) {
+    char tmp[BUF_SIZE] = {'\0'};
+    strcpy(tmp, s_value);
+    if (format_item.precision_set) {
+        tmp[format_item.precision] = '\0';
+    }
 
-//    int shift = f.width - strlen(tmp);
-//    int len = strlen(tmp);
+    int len = strlen(tmp);
+    int gap = format_item.width - len;
 
-//    if (f.minus && shift > 0) {
-//        strcpy(buff, tmp);
-//        memset(buff + len, ' ', shift);
-//    } else if (shift > 0) {
-//        memset(buff, ' ', shift);
-//        strcpy(buff + shift, tmp);
-//    } else {
-//        strcpy(buff, tmp);
-//    }
-//}
+    if (!format_item.minus && gap > 0) {
+        memset(result, ' ', gap);
+        strcpy(result + gap, tmp);
+    } else if (format_item.minus && gap > 0) {
+        strcpy(result, tmp);
+        memset(result + len, ' ', gap);
+    } else {
+        strcpy(result, tmp);
+    }
+}
 
 //void do_wide_string(flags f, char *buff, wchar_t *wstr) {
 //    char tmp[BUFF_SIZE] = {'\0'};
@@ -386,10 +378,8 @@ void double_to_string(long double double_value, st_format_item format_item,
     right *= 10;
     i_right = floor(right);
     if(i_right == 0) {
-        printf("i right = %lld\n", i_right);
-        printf("right = %Lf\n", right);
         buf[k] = i_right % 10 + '0';
-        printf("buf[%d] = %c\n", k, buf[k]);
+//        printf("buf[%d] = %c\n", k, buf[k]);
         k++;
     }
   }
