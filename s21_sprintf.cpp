@@ -108,12 +108,23 @@ const char *parse_length(st_format_item *format_item, const char *format) {
 }
 
 const char *parse_specifier(st_format_item *format_item, const char *format) {
-  if (*format == 'c' || *format == 'd' || *format == 'i' || *format == 'f' ||
-      *format == 's' || *format == 'u') {
+  if (/**format == 'c' || *format == 'd' || *format == 'i' || *format == 'f' ||
+      *format == 's' || *format == 'u'*/ is_specifier(*format)) {
     format_item->specifier = *format;
     format++;
   }
   return format;
+}
+
+int is_specifier(char ch) {
+    int result = 0;
+    if (ch == 'c' || ch == 'd' || ch == 'i' || ch == 'f' ||
+        ch == 's' || ch == 'u' || ch == '%' || ch == 'o' ||
+        ch == 'g' || ch == 'G' || ch == 'e' || ch == 'E' ||
+        ch == 'x' || ch == 'X' || ch == 'n' || ch == 'p') {
+        result = 1;
+    }
+    return result;
 }
 
 void arg_selector(st_format_item format_item, char *result, va_list args) {
@@ -131,7 +142,7 @@ void arg_selector(st_format_item format_item, char *result, va_list args) {
   } else if (format_item.specifier == 'f') {
     f_processing(result, format_item, args, temp);
   } else if (format_item.specifier == '%') {
-    result[0] = '%';
+    result[0] = '%'; // !!!!
   }
 }
 
@@ -269,94 +280,75 @@ char *add_to_string(char *result, char *temp) {
 
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result) {
-  long double left = 0.0;
-  long double right = 0.0;
-  long long i_left = 0;
-  long long i_right = 0;
+  long double left = 0.0, right = 0.0;
+  long long i_left = 0, i_right = 0;
   char buf[400] = {'\0'};
-//  long double temp = 0;
+  int k = 0; //buf iterator
 
   right = modfl(double_value, &left);
   i_left = left;
-  printf("0 left = %lld\n", i_left);
-  printf("0 right = %.20Lf\n", right);
-  if(right == 0.0) printf("mull\n");
 
-  for (int i = 0; i < format_item.precision; i++) {
-    right *= 10;
-//    r
-    printf("right = %Lf\n", right);
-  }
-
-  right = roundl(right);
-  i_right = right;
-
-  printf("1 left = %lld\n", i_left);
-  printf("1 right = %lld\n", i_right);
-
+  // левую часть записываем в результат
   int_to_string(i_left, buf);
   result = add_to_string(result, buf);
-   char dot[2] = ".";
-  result = add_to_string(result, dot /*"."*/);
+  //
+  // добавляем часть после точки
+  if( (format_item.precision_set && format_item.precision != 0) || !format_item.precision_set) {
+     char dot[2] = ".";
+     result = add_to_string(result, dot /*"."*/);
 
-  memset(buf, '\0', 80);
+  memset(buf, '\0', 400); // чистим буфер
 
-  int_to_string(i_right, buf);
+  //цикл записывает правую часть в буфер
+  for (int i = 0; i < format_item.precision; i++) {
+    right *= 10;
+    if(roundl(right) == 0) {
+        i_right = roundl(right);
+        buf[k] = i_right + '0';
+    } else {
+        i_right = roundl(right);
+        buf[k] = i_right % 10 + '0';
 
-  // костыль если значение 0
-  if (buf[0] == '0') {
-    for (int i = 1; i < format_item.precision; i++) {
-      buf[i] = '0';
     }
+//    printf("buf[%d] = %c\n", k, buf[k]);
+//    printf("right = %Lf\n", right);
+    k++;
   }
+//  printf("\n");
+//  printf("buf = %s\n", buf);
 
   result = add_to_string(result, buf);
 }
 
-//void double_to_string(long double val, char *ret, st_format_item f) {
-//    char buff[BUF_SIZE] = {'\0'};
-//    int idx = BUF_SIZE - 2;
-//    bool neg = val < 0 ? 1 : 0;
-//    val = neg ? val * -1 : val;
-//    long double l = 0, r = modfl(val, &l);
-//    if (f.precision == 0) {
-//        l = roundl(val);
-//        r = 0;
-//    }
-//    char fractions[BUF_SIZE] = {'\0'};
-//    for (int i = 0; i < f.precision; i++) {
-//        r = r * 10;
-//        fractions[i] = (int)r + '0';
-//    }
-//    long long right = roundl(r), left = l;
-//    if (!right) {
-//        for (int i = 0; i < f.precision; idx--, i++)
-//            buff[idx] = '0';
-//    } else {
-//        for (int i = strlen(fractions); right || i > 0;
-//             right /= 10, idx--, i--)
-//            buff[idx] = (int)(right % 10 + 0.05) + '0';
-//    }
-//    if ((f.precision_set && f.precision != 0) || (int)r ||
-//        (!f.precision_set && val == 0) || strlen(fractions))
-//        buff[idx--] = '.';
-//    if (!left) {
-//        buff[idx] = '0';
-//        idx--;
-//    } else {
-//        for (; left; left /= 10, idx--)
-//            buff[idx] = (int)(left % 10) + '0';
-//    }
-//    for (int i = 0; buff[idx + 1]; idx++, i++) {
-//        if (neg && i == 0) {
-//            ret[i] = '-';
-//            i++;
-//        }
-//        ret[i] = buff[idx + 1];
-//    }
 
-//    printf("ret = %s\n", ret);
-//}
+//  right = roundl(right);
+//  i_right = right;
+
+//  printf("1 left = %lld\n", i_left);
+//  printf("1 right = %lld\n", i_right);
+
+//  int_to_string(i_left, buf);
+//  result = add_to_string(result, buf);
+//  if(format_item.precision_set && format_item.precision != 0) {
+//      char dot[2] = ".";
+//     result = add_to_string(result, dot /*"."*/);
+
+
+//  memset(buf, '\0', 80);
+
+//  int_to_string(i_right, buf);
+
+
+//  // костыль если значение 0
+//  if (buf[0] == '0') {
+//    for (int i = 1; i < format_item.precision; i++) {
+//      buf[i] = '0';
+//    }
+//  }
+
+//  result = add_to_string(result, buf);
+//  }
+}
 
 void presicion_processing(st_format_item format_item, char *value,
                           char *result) {

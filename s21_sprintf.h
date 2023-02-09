@@ -51,6 +51,8 @@ const char *parse_length(st_format_item *format_item, const char *format);
 
 const char *parse_specifier(st_format_item *format_item, const char *format);
 
+int is_specifier(char ch);
+
 void arg_selector(st_format_item format_item, char *result, va_list args);
 
 void char_processing(char *result, va_list args, st_format_item format_item);
