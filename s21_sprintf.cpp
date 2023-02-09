@@ -158,20 +158,6 @@ void char_processing(char *result, va_list args, st_format_item format_item) {
   }
 }
 
-// void wide_char_processing(st_format_item args, char *buff, wchar_t w_c) {
-//   if (!f.minus && f.width) {
-//     char tmp[BUFF_SIZE] = {'\0'};
-//     wcstombs(tmp, &w_c, BUFF_SIZE);
-//     for (s21_size_t i = 0; i < f.width - s21_strlen(tmp); i++) buff[i] = ' ';
-//     s21_strcat(buff, tmp);
-//   } else if (f.width) {
-//     wcstombs(buff, &w_c, BUFF_SIZE);
-//     for (int i = s21_strlen(buff); i < f.width; i++) buff[i] = ' ';
-//   } else {
-//     wcstombs(buff, &w_c, BUFF_SIZE);
-//   }
-// }
-
 void int_processing(char *result, va_list args, char *temp,
                     st_format_item format_item, char *formated_temp) {
 //   int64_t d_value = va_arg(args, int64_t);
@@ -278,44 +264,44 @@ char *add_to_string(char *result, char *temp) {
   return result;
 }
 
+
+
+
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result) {
   long double left = 0.0, right = 0.0;
   long long i_left = 0, i_right = 0;
-  char buf[400] = {'\0'};
+  char buf[400] = {'\0'}, i_temp[200] = {'\0'};
   int k = 0; //buf iterator
 
   right = modfl(double_value, &left);
   i_left = left;
-
-  // левую часть записываем в результат
+  //обработка левой части
   int_to_string(i_left, buf);
   result = add_to_string(result, buf);
-  //
-  // добавляем часть после точки
+  // добавляем точку если надо
   if( (format_item.precision_set && format_item.precision != 0) || !format_item.precision_set) {
      char dot[2] = ".";
      result = add_to_string(result, dot /*"."*/);
-
+  //обработка правой части
   memset(buf, '\0', 400); // чистим буфер
-
-  //цикл записывает правую часть в буфер
+  if(right < 0) {
+      right *= -1.;
+  }
   for (int i = 0; i < format_item.precision; i++) {
     right *= 10;
-    if(roundl(right) == 0) {
-        i_right = roundl(right);
-        buf[k] = i_right + '0';
-    } else {
-        i_right = roundl(right);
+    i_right = floor(right);
+    if(i_right == 0) {
+        printf("i right = %lld\n", i_right);
+        printf("right = %Lf\n", right);
         buf[k] = i_right % 10 + '0';
-
+        printf("buf[%d] = %c\n", k, buf[k]);
+        k++;
     }
-//    printf("buf[%d] = %c\n", k, buf[k]);
-//    printf("right = %Lf\n", right);
-    k++;
   }
-//  printf("\n");
-//  printf("buf = %s\n", buf);
+  i_right = roundl(right);
+  int_to_string(i_right,i_temp);
+  strcat(buf, i_temp);
 
   result = add_to_string(result, buf);
 }

@@ -6,13 +6,18 @@ int main()
     char origin[BUF_SIZE];
     char my[BUF_SIZE];
 
-//    s21_sprintf(my, "%.20f", 0.000000000000001);
-//    sprintf(origin, "%.20f", 0.000000000000001);
-    s21_sprintf(my, "%.0f", 0.0002100);
-    sprintf(origin, "%.0f", 0.0002100);
-//    s21_sprintf(my, "%f", 0.0);
-//    sprintf(origin, "%f", 0.0);
 
+      s21_sprintf(my, "%.18f", -100.00088);
+      sprintf(origin, "%.18f", -100.00088);
+
+//    s21_sprintf(my, "%7.10f", 11.123456);
+//    sprintf(origin, "%7.10f", 11.123456);
+
+    if(strcmp(origin, my) == 0) {
+        printf("TEST OK!\n");
+    } else {
+        printf("FAIL!\n");
+    }
     printf("origin = %s\n", origin);
     printf("    my = %s\n", my);
 
