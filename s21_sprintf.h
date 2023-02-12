@@ -7,6 +7,7 @@
 // используется стандартный memset
 ///////////////////
 #include <ctype.h>
+#include <locale.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,14 +24,15 @@ typedef struct {
   int minus;
   int plus;
   int space;
-    ////
+  int nullik;
+  ////
   int width;
-    ////
+  ////
   int precision;
   int precision_set;
-    ////
+  ////
   char length;
-    ////
+  ////
   char specifier;
 
 } st_format_item;
@@ -59,6 +61,13 @@ void char_processing(char *result, va_list args, st_format_item format_item);
 
 void do_char(st_format_item args, char *result, char c_value);
 
+void do_wide_char(st_format_item format_item, char *result, wchar_t w_c);
+
+void octal_processing(char *result, va_list args, char *temp,
+                    st_format_item format_item, char *formated_temp);
+
+void octal_to_string(long long octal_value, char *result);
+
 void int_processing(char *result, va_list args, char *temp,
                     st_format_item format_item, char *formated_temp);
 
@@ -68,6 +77,8 @@ void u_int_processing(char *result, va_list args, char *temp,
 void s_processing(char *result, va_list args, st_format_item format_item);
 
 void do_string(st_format_item format_item, char *result, char *s_value);
+
+void do_wide_string(st_format_item format_item, char *result, wchar_t *wstr);
 
 void f_processing(char *result, st_format_item format_item, va_list args,
                   char *temp);
@@ -79,15 +90,14 @@ char *add_to_string(char *result, char *temp);
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result);
 
-//void double_to_string(long double val, char *ret, st_format_item f);
-
 void presicion_processing(st_format_item format_item, char *value,
                           char *result);
 
 void flags_processing(st_format_item format_item, char *value, char *result);
 
-void add_width_spaces_to_end(char *result, int width, int value_len);
+void add_width_spaces_to_end(char *result, st_format_item format_item, int value_len);
 
-int add_width_spaces_first(char *result, int width, int value_len);
+int add_width_spaces_first(char *result, st_format_item format_item, int value_len);
 
 #endif  //  SRC_S21_SPRINTF_H_
+
