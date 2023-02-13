@@ -97,7 +97,7 @@ void flags_processing(st_format_item format_item, char *value, char *result);
 
 void add_width_spaces_to_end(char *result, st_format_item format_item, int value_len);
 
-int add_width_spaces_first(char *result, st_format_item format_item, int value_len);
+int add_width_spaces_first(char *result, st_format_item format_item, char *value);
 
 #endif  //  SRC_S21_SPRINTF_H_
 

@@ -509,49 +509,48 @@ void flags_processing(st_format_item format_item, char *value, char *result) {
   char f_temp[BUF_SIZE] = {'\0'};
   int i = 0;  // f_temp index
   int len = strlen(value);
-  int sign = 0;
-  if ((format_item.width > len) && !format_item.minus) {
-      if (value[0] == '-' ) {
-          f_temp[0] = '-';
-        i++;
-        sign = 1;
+
+  if (format_item.width > len) {
+      if(!format_item.minus) {
+          i = add_width_spaces_first(f_temp, format_item, value);
       }
-    i = add_width_spaces_first(f_temp, format_item, len);
-    if(format_item.plus){
-      i--;
-    }
+  } else {
+      if (format_item.plus && value[0] != '-' &&
+                 format_item.specifier != 'u' && !format_item.nullik) {
+          printf("in plus!\n");
+        f_temp[i] = '+';
+        i++;
+      }
+      if (!format_item.plus && format_item.space && value[0] != '-' &&
+          format_item.specifier != 'u' && (int)strlen(value) >= format_item.width) {
+        f_temp[i] = ' ';
+        i++;
+      }
   }
 
-  if (!format_item.plus && format_item.space && value[0] != '-' &&
-      format_item.specifier != 'u') {
-    f_temp[0] = ' ';
-    i++;
-    // add_to_string(f_temp + i, value);
-    // printf("val = %s\n", );
-    printf("in space\n");
-  }
-  if (format_item.plus && value[0] != '-' &&
-             format_item.specifier != 'u') {
-    // printf("in plus\n");
-    f_temp[i] = '+';
-    i++;
-    if (format_item.minus && (format_item.width > len)) {
-      // printf("+-in minus\n");
-      add_to_string(f_temp + i, value);
-      add_width_spaces_to_end(f_temp + len, format_item, len);
-    }
-  }
+//  if (format_item.plus && value[0] != '-' &&
+//             format_item.specifier != 'u' && !format_item.nullik) {
+//      printf("in plus!\n");
+//    f_temp[i] = '+';
+//    i++;
+//  }
+//  if (!format_item.plus && format_item.space && value[0] != '-' &&
+//      format_item.specifier != 'u' && (int)strlen(value) >= format_item.width) {
+//    f_temp[i] = ' ';
+//    i++;
+//  }
+  printf("i = %d\n", i);
+
   if (format_item.minus && (format_item.width > len)) {
-    // printf("2in minus\n");
     add_to_string(f_temp + i, value);
     add_width_spaces_to_end(f_temp + len, format_item, len);
   }
-  add_to_string(f_temp + i - sign, value);
+  add_to_string(f_temp + i, value);
   add_to_string(result, f_temp);
+  printf("len = %d\n", (int)strlen(result));
 }
 
 void add_width_spaces_to_end(char *result, st_format_item format_item, int value_len) {
-
   int i = value_len;
   while (i < format_item.width) {
     *result = ' ';
@@ -560,11 +559,17 @@ void add_width_spaces_to_end(char *result, st_format_item format_item, int value
   }
 }
 
-int add_width_spaces_first(char *result, st_format_item format_item, int value_len) {
+int add_width_spaces_first(char *result, st_format_item format_item, char *value) {
   int i = 0;
   int width = format_item.width;
-  while (width > value_len) {
-      if(format_item.nullik) {
+  while (width /*-1*/ > (int)strlen(value)) {
+      if(!i && value[0] == '-' && format_item.nullik) {
+          *result = '-';
+          printf("res = %c\n", *result);
+          value[0] = '0';
+      } else if(!i && value[0] != '-' && format_item.plus && format_item.nullik) {
+          *result = '+';
+      } else if(format_item.nullik) {
           *result = '0';
       } else {
           *result = ' ';
@@ -573,6 +578,7 @@ int add_width_spaces_first(char *result, st_format_item format_item, int value_l
     i++;
     width--;
   }
+
   return i;
 }
 
