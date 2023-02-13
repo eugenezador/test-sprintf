@@ -516,7 +516,7 @@ void flags_processing(st_format_item format_item, char *value, char *result) {
       }
   } else {
       if (format_item.plus && value[0] != '-' &&
-                 format_item.specifier != 'u' && !format_item.nullik) {
+                 format_item.specifier != 'u' /*&& !format_item.nullik*/) {
           printf("in plus!\n");
         f_temp[i] = '+';
         i++;
@@ -528,17 +528,6 @@ void flags_processing(st_format_item format_item, char *value, char *result) {
       }
   }
 
-//  if (format_item.plus && value[0] != '-' &&
-//             format_item.specifier != 'u' && !format_item.nullik) {
-//      printf("in plus!\n");
-//    f_temp[i] = '+';
-//    i++;
-//  }
-//  if (!format_item.plus && format_item.space && value[0] != '-' &&
-//      format_item.specifier != 'u' && (int)strlen(value) >= format_item.width) {
-//    f_temp[i] = ' ';
-//    i++;
-//  }
   printf("i = %d\n", i);
 
   if (format_item.minus && (format_item.width > len)) {
@@ -562,18 +551,22 @@ void add_width_spaces_to_end(char *result, st_format_item format_item, int value
 int add_width_spaces_first(char *result, st_format_item format_item, char *value) {
   int i = 0;
   int width = format_item.width;
-  while (width /*-1*/ > (int)strlen(value)) {
+  while (width > (int)strlen(value)) {
       if(!i && value[0] == '-' && format_item.nullik) {
           *result = '-';
-          printf("res = %c\n", *result);
           value[0] = '0';
-      } else if(!i && value[0] != '-' && format_item.plus && format_item.nullik) {
+      }
+      if(!i && value[0] != '-' && format_item.plus && !format_item.nullik) {
           *result = '+';
-      } else if(format_item.nullik) {
+      }
+      if(format_item.nullik && !format_item.minus) {
           *result = '0';
-      } else {
+      }
+      if(format_item.space && !format_item.plus) {
           *result = ' ';
       }
+      *result = ' ';
+
     result++;
     i++;
     width--;
@@ -581,4 +574,3 @@ int add_width_spaces_first(char *result, st_format_item format_item, char *value
 
   return i;
 }
-
