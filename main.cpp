@@ -56,12 +56,14 @@ int main()
 //           int b = s21_sprintf(str2, str3, num, num, num);
 
 //       32 FAIL
-//           char str1[400];
-//              char str2[400];
-//              char str3[400] = "test: % 015f!\ttest: % -026f!\ttest: %+ 018f!";
-//              double num = 947.6785643;
-//              int a = sprintf(str1, str3, num, num, num);
-//              int b = s21_sprintf(str2, str3, num, num, num);
+           char str1[400];
+              char str2[400];
+              char str3[400] = "test: % +-014f!\ttest: % -0f!\ttest: %+f!";
+              double num = 947.6785643;
+              int a = sprintf(str1, str3, num, num, num);
+              int b = s21_sprintf(str2, str3, num, num, num);
+                  printf("32origin = %s\n", str1);
+                  printf("32    my = %s\n", str2);
 
 
 //              char str1[400];
@@ -84,14 +86,14 @@ int main()
 
 
 //    // 35 Fail
-    char str1[400];
-    char str2[400];
-    char str3[400] = "test: %+0 50.15f!\ntest: % +40.15f!";
-    double num = 278.723786;
-    int a = sprintf(str1, str3, num, num);
-    int b = s21_sprintf(str2, str3, num, num);
-       printf("35origin = %s\n", str1);
-       printf("35    my = %s\n", str2);
+//    char str1[400];
+//    char str2[400];
+//    char str3[400] = "test: %+0 4.15f!\ntest: % +4.15f!";
+//    double num = 278.723786;
+//    int a = sprintf(str1, str3, num, num);
+//    int b = s21_sprintf(str2, str3, num, num);
+//       printf("35origin = %s\n", str1);
+//       printf("35    my = %s\n", str2);
 
     if(strcmp(str1, str1) == 0 && a == b) {
         printf("TEST OK!\n");
@@ -99,6 +101,4 @@ int main()
         printf("FAIL!\n");
     }
     return 0;
-}
-
 
