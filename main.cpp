@@ -56,22 +56,24 @@ int main()
 //           int b = s21_sprintf(str2, str3, num, num, num);
 
 //       32 FAIL
-           char str1[400];
-              char str2[400];
-              char str3[400] = "test: % +-014f!\ttest: % -0f!\ttest: %+f!";
-              double num = 947.6785643;
-              int a = sprintf(str1, str3, num, num, num);
-              int b = s21_sprintf(str2, str3, num, num, num);
-                  printf("32origin = %s\n", str1);
-                  printf("32    my = %s\n", str2);
+//           char str1[400];
+//              char str2[400];
+//              char str3[400] = "test: %018f!\ttest: % +-0f!\ttest: %+f!";
+//              double num = -947.6785;
+//              int a = sprintf(str1, str3, num, num, num);
+//              int b = s21_sprintf(str2, str3, num, num, num);
+//                  printf("32origin = %s\n", str1);
+//                  printf("32    my = %s\n", str2);
 
 
 //              char str1[400];
 //                 char str2[400];
-//                 char str3[400] = "test: %-+ 025.5f!\ntest: %- 020.4f\ntest: %+ 016.6f!";
+//                 char str3[400] = "test: %-+ 025.5f!\ttest: %- 020.4f\ttest: %+ 016.6f!";
 //                 double num = 837564.4753366;
 //                 int a = sprintf(str1, str3, num, num, num);
 //                  int b =  s21_sprintf(str2, str3, num, num, num);
+//        printf("origin = %s\n", str1);
+//        printf("    my = %s\n", str2);
 
 
 // 34 FAIL
@@ -95,10 +97,21 @@ int main()
 //       printf("35origin = %s\n", str1);
 //       printf("35    my = %s\n", str2);
 
+
+        char str1[400];
+        char str2[400];
+        char str3[400] = "test: %050.2f!"/*\ttest: %- 020.4f\ttest: %+ 016.6f!"*/;
+        double num = 837564.4753366;
+        int a = sprintf(str1, str3, num/*, num, num*/);
+        int b =  s21_sprintf(str2, str3, num/*, num, num*/);
+        printf("origin = %s\n", str1);
+        printf("    my = %s\n", str2);
+
     if(strcmp(str1, str1) == 0 && a == b) {
         printf("TEST OK!\n");
     } else {
         printf("FAIL!\n");
     }
     return 0;
+}
 

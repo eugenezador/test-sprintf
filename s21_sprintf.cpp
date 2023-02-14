@@ -56,7 +56,7 @@ int s21_sprintf(char *str, const char *format, ...) {
 }
 
 const char *parse_flags(st_format_item *format_item, const char *format) {
-  while (*format == '-' || *format == '+' || *format == ' ' || *format == '0') {
+  while (*format == '-' || *format == '+' || *format == ' ' || *format == '0' || *format == '#') {
     switch (*format) {
       case '-':
         format_item->minus = 1;
@@ -70,6 +70,9 @@ const char *parse_flags(st_format_item *format_item, const char *format) {
       case '0':
         format_item->nullik = 1;
         break;
+    case '#':
+      format_item->grill = 1;
+      break;
     }
     format++;
   }
@@ -507,36 +510,41 @@ void presicion_processing(st_format_item format_item, char *value,
 
 void flags_processing(st_format_item format_item, char *value, char *result) {
   char f_temp[BUF_SIZE] = {'\0'};
+  char f_value[200] = {'\0'};
   int i = 0;  // f_temp index
-  int len = strlen(value);
+  int flag_1 = 0, flag_2 = 0;
 
-  if (format_item.width > len) {
-      if(!format_item.minus) {
-          i = add_width_spaces_first(f_temp, format_item, value);
+  if(format_item.minus) {// ignore 0
+      if(format_item.space && !format_item.plus && value[0] != '-' && format_item.specifier != 'u') {
+          f_temp[0] = ' ';
       }
+      if(format_item.plus && format_item.specifier != 'u') {
+          f_temp[0] = value[0] != '-' ? '+' : value[0];
+      }
+      add_to_string(f_temp + i, value);
+      add_width_spaces_to_end(f_temp + (int)strlen(f_temp), format_item, (int)strlen(f_temp));
+printf("in min\n");
   } else {
-      if (format_item.plus && value[0] != '-' &&
-                 format_item.specifier != 'u' /*&& !format_item.nullik*/) {
-          printf("in plus!\n");
-        f_temp[i] = '+';
-        i++;
+      if(format_item.space && !format_item.plus && value[0] != '-' && format_item.specifier != 'u') {
+          f_temp[0] = ' ';
+          flag_1 = 1;
       }
-      if (!format_item.plus && format_item.space && value[0] != '-' &&
-          format_item.specifier != 'u' && (int)strlen(value) >= format_item.width) {
-        f_temp[i] = ' ';
-        i++;
+      if(format_item.plus && format_item.specifier != 'u') {
+          f_temp[0] = value[0] != '-' ? '+' : value[0];
+          flag_2 = 1;
       }
+
+      memset(f_temp + (flag_1 || flag_2), format_item.nullik ? '0' : ' ', format_item.width - (int)strlen(value));
+      if(value[0] == '-' && format_item.nullik){
+          add_to_string(value + 1, f_value);
+          add_to_string(f_temp, value);
+      }else {
+          add_to_string(f_temp, value);
+      }
+      printf("f temp = %s\n", f_temp);
   }
 
-  printf("i = %d\n", i);
-
-  if (format_item.minus && (format_item.width > len)) {
-    add_to_string(f_temp + i, value);
-    add_width_spaces_to_end(f_temp + len, format_item, len);
-  }
-  add_to_string(f_temp + i, value);
   add_to_string(result, f_temp);
-  printf("len = %d\n", (int)strlen(result));
 }
 
 void add_width_spaces_to_end(char *result, st_format_item format_item, int value_len) {
@@ -548,29 +556,3 @@ void add_width_spaces_to_end(char *result, st_format_item format_item, int value
   }
 }
 
-int add_width_spaces_first(char *result, st_format_item format_item, char *value) {
-  int i = 0;
-  int width = format_item.width;
-  while (width > (int)strlen(value)) {
-      if(!i && value[0] == '-' && format_item.nullik) {
-          *result = '-';
-          value[0] = '0';
-      }
-      if(!i && value[0] != '-' && format_item.plus && !format_item.nullik) {
-          *result = '+';
-      }
-      if(format_item.nullik && !format_item.minus) {
-          *result = '0';
-      }
-      if(format_item.space && !format_item.plus) {
-          *result = ' ';
-      }
-      *result = ' ';
-
-    result++;
-    i++;
-    width--;
-  }
-
-  return i;
-}

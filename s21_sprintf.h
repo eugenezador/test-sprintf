@@ -25,6 +25,7 @@ typedef struct {
   int plus;
   int space;
   int nullik;
+  int grill;
   ////
   int width;
   ////
