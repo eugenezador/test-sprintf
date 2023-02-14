@@ -233,7 +233,7 @@ void octal_processing(char *result, va_list args, char *temp,
   }
 
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(format_item, formated_temp, result);
+  flags_processing(temp, format_item);
 }
 
 void octal_to_string(long long octal_value, char *result) {
@@ -293,7 +293,7 @@ void int_processing(char *result, va_list args, char *temp,
   }
 
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(format_item, formated_temp, result);
+  flags_processing(temp, format_item);
 }
 
 void u_int_processing(char *result, va_list args, char *temp,
@@ -308,7 +308,7 @@ void u_int_processing(char *result, va_list args, char *temp,
 
   int_to_string(u_value, temp);
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(format_item, formated_temp, result);
+  flags_processing(temp, format_item);
 }
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
@@ -377,8 +377,9 @@ void f_processing(char *result, st_format_item format_item, va_list args,
   if (!format_item.precision_set) {
     format_item.precision = 6;
   }
-  double_to_string(f_value, format_item, temp);
-  flags_processing(format_item, temp, result);
+  double_to_string(f_value, format_item, result);
+  printf("temp = %s\n", temp);
+  flags_processing(result, format_item);
 }
 
 void int_to_string(long long int_value, char *result) {
@@ -508,53 +509,27 @@ void presicion_processing(st_format_item format_item, char *value,
   // printf("pres = %s\n", result);
 }
 
-void flags_processing(st_format_item format_item, char *value, char *result) {
-  char f_temp[BUF_SIZE] = {'\0'};
-  char f_value[200] = {'\0'};
-  int i = 0;  // f_temp index
-  int flag_1 = 0, flag_2 = 0;
-
-  if(format_item.minus) {// ignore 0
-      if(format_item.space && !format_item.plus && value[0] != '-' && format_item.specifier != 'u') {
-          f_temp[0] = ' ';
-      }
-      if(format_item.plus && format_item.specifier != 'u') {
-          f_temp[0] = value[0] != '-' ? '+' : value[0];
-      }
-      add_to_string(f_temp + i, value);
-      add_width_spaces_to_end(f_temp + (int)strlen(f_temp), format_item, (int)strlen(f_temp));
-printf("in min\n");
-  } else {
-      if(format_item.space && !format_item.plus && value[0] != '-' && format_item.specifier != 'u') {
-          f_temp[0] = ' ';
-          flag_1 = 1;
-      }
-      if(format_item.plus && format_item.specifier != 'u') {
-          f_temp[0] = value[0] != '-' ? '+' : value[0];
-          flag_2 = 1;
-      }
-
-      memset(f_temp + (flag_1 || flag_2), format_item.nullik ? '0' : ' ', format_item.width - (int)strlen(value));
-      if(value[0] == '-' && format_item.nullik){
-          add_to_string(value + 1, f_value);
-          add_to_string(f_temp, value);
-      }else {
-          add_to_string(f_temp, value);
-      }
-      printf("f temp = %s\n", f_temp);
-
-
-  }
-
-  add_to_string(result, f_temp);
+void flags_processing(char *result, st_format_item format_item) {
+    char tmp[BUF_SIZE + 1] = {'\0'};
+    if (format_item.plus && format_item.specifier != 'u') {
+        tmp[0] = result[0] == '-' ? result[0] : '+';
+        strcpy(tmp + 1, result[0] == '-' ? result + 1 : result);
+        strcpy(result, tmp);
+    } else if (format_item.space && result[0] != '-' && format_item.specifier != 'u') {
+        tmp[0] = ' ';
+        strcpy(tmp + 1, result);
+        strcpy(result, tmp);
+    }
+    if (format_item.width > (int)strlen(result)) {
+        int i = format_item.width - strlen(result);
+        if (!format_item.minus) {
+            memset(tmp, format_item.nullik ? '0' : ' ', i);
+            strcpy(tmp + i, result);
+        } else {
+            strcpy(tmp, result);
+            memset(tmp + strlen(tmp), ' ', i);
+        }
+        strcpy(result, tmp);
+    }
+    printf("tar res = %s\n", result);
 }
-
-void add_width_spaces_to_end(char *result, st_format_item format_item, int value_len) {
-  int i = value_len;
-  while (i < format_item.width) {
-    *result = ' ';
-    result++;
-    i++;
-  }
-}
-
