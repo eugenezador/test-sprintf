@@ -542,6 +542,8 @@ printf("in min\n");
           add_to_string(f_temp, value);
       }
       printf("f temp = %s\n", f_temp);
+
+
   }
 
   add_to_string(result, f_temp);
