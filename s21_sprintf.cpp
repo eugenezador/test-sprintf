@@ -160,6 +160,8 @@ void arg_selector(st_format_item format_item, char *result, va_list args) {
     f_processing(result, format_item, args, temp);
   } else if (format_item.specifier == 'o'){
     octal_processing(result, args, temp, format_item, formated_temp);
+  } else if (format_item.specifier == 'p') {
+      p_processing(result, args, format_item);
   } else if (format_item.specifier == '%') {
     result[0] = '%';  // !!!!
   }
@@ -274,7 +276,7 @@ void octal_to_string(long long octal_value, char *result) {
 
 void int_processing(char *result, va_list args, char *temp,
                     st_format_item format_item, char *formated_temp) {
-     int64_t d_value = va_arg(args, int64_t);
+     long long int d_value = va_arg(args, long long int);
   //   printf("d val = %lld\n", d_value);
   // printf("1 int = %ld\n", d_value);
   if (format_item.length == 'h') {
@@ -305,10 +307,45 @@ void u_int_processing(char *result, va_list args, char *temp,
     u_value = (unsigned long int)u_value;
   }
 
-  int_to_string(u_value, temp);
+  u_int_to_string(u_value, temp);
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(result, format_item, temp);
+  flags_processing(result, format_item, formated_temp);
 }
+
+void p_processing(char *result, va_list args, st_format_item format_item,
+                  char *temp, char *formated_temp) {
+    unsigned long long int p_value = va_arg(args, unsigned long long int);
+
+    if (format_item.length == 'h') {
+      p_value = (unsigned short int)p_value;
+    } else if (format_item.length == 'l') {
+      p_value = (unsigned long int)p_value;
+    }
+    hex_u_int_to_string(p_value, temp);
+    presicion_processing(format_item, temp, formated_temp);
+    add_ox(formated_temp, formated_temp);
+    flags_processing(result, format_item, temp);
+}
+
+void add_ox(char *value, st_format_item format_item) {
+    if (!is_zero_values(value) || format_item.specifier == 'p') {
+        memmove(value + 2, value, strlen(value));
+        value[0] = '0';
+        value[1] = 'x';
+    }
+}
+
+int is_zero_values(char *array) {
+    int result = 0;
+    while(*array) {
+        if(*array == '0') {
+            result = 1;
+        }
+        array++;
+    }
+    return result;
+}
+
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
   if (format_item.length == 'l') {
@@ -415,6 +452,41 @@ void int_to_string(long long int_value, char *result) {
   }
 }
 
+void u_int_to_string(unsigned long long int u_int_value, char *result) {
+  int k = 0;
+  int add_sign = 0;
+
+  if (u_int_value < 0) {
+    u_int_value = -u_int_value;
+    add_sign = 1;
+  }
+
+  if (u_int_value == 0) {
+    result[k] = '0';
+    k++;
+  }
+
+  while (u_int_value > 0) {
+    result[k] = u_int_value % 10 + '0';
+    u_int_value = u_int_value / 10;
+    k++;
+  }
+
+  if (add_sign) {
+    result[k] = '-';
+    k++;
+  }
+
+  result[k] = '\0';
+
+  char tmp = '\0';
+  for (int i = 0; i < k / 2; i++) {
+    tmp = result[i];
+    result[i] = result[k - 1 - i];
+    result[k - 1 - i] = tmp;
+  }
+}
+
 char *add_to_string(char *result, char *temp) {
   while (*temp) {
     *result = *temp;
@@ -423,6 +495,40 @@ char *add_to_string(char *result, char *temp) {
   }
   // rerurn current result pos
   return result;
+}
+void hex_u_int_to_string(unsigned long long u_int_value, char *result) {
+    int k = 0;
+    int add_sign = 0;
+
+    if (u_int_value < 0) {
+      u_int_value = -u_int_value;
+      add_sign = 1;
+    }
+
+    if (u_int_value == 0) {
+      result[k] = '0';
+      k++;
+    }
+
+    while (u_int_value > 0) {
+      result[k] = u_int_value % 16 + '0';
+      u_int_value = u_int_value / 10;
+      k++;
+    }
+
+    if (add_sign) {
+      result[k] = '-';
+      k++;
+    }
+
+    result[k] = '\0';
+
+    char tmp = '\0';
+    for (int i = 0; i < k / 2; i++) {
+      tmp = result[i];
+      result[i] = result[k - 1 - i];
+      result[k - 1 - i] = tmp;
+    }
 }
 
 void double_to_string(long double double_value, st_format_item format_item,

@@ -105,14 +105,14 @@ int main()
 //        printf("    my = %s\n", str2);
 
     //       32 FAIL
-//               char str1[400];
-//                  char str2[400];
-//                  char str3[400] = "test: %018f!\ttest: % +-0f!\ttest: %+f!";
-//                  double num = -947.6785;
-//                  int a = sprintf(str1, str3, num, num, num);
-//                  int b = s21_sprintf(str2, str3, num, num, num);
-//                      printf("32origin = %s\n", str1);
-//                      printf("32    my = %s\n", str2);
+               char str1[400];
+                  char str2[400];
+                  char str3[400] = "test: %f!\ttest: % +-0f!\ttest: %+f!";
+                  double num = -947.6785;
+                  int a = sprintf(str1, str3, num, num, num);
+                  int b = s21_sprintf(str2, str3, num, num, num);
+                      printf("32origin = %s\n", str1);
+                      printf("32    my = %s\n", str2);
 
         if(strcmp(str1, str1) == 0 && a == b) {
             printf("TEST OK!\n");

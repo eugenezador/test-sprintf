@@ -75,6 +75,8 @@ void int_processing(char *result, va_list args, char *temp,
 void u_int_processing(char *result, va_list args, char *temp,
                       st_format_item format_item, char *formated_temp);
 
+void p_processing(char *result, va_list args, st_format_item format_item);
+
 void s_processing(char *result, va_list args, st_format_item format_item);
 
 void do_string(st_format_item format_item, char *result, char *s_value);
@@ -86,6 +88,10 @@ void f_processing(char *result, st_format_item format_item, va_list args,
 
 void int_to_string(long long int_value, char *result);
 
+void u_int_to_string(unsigned long long int_value, char *result);
+
+void hex_u_int_to_string(unsigned long long int_value, char *result);
+
 char *add_to_string(char *result, char *temp);
 
 void double_to_string(long double double_value, st_format_item format_item,
@@ -96,6 +102,7 @@ void presicion_processing(st_format_item format_item, char *value,
 
 
 void flags_processing(char *result, st_format_item format_item, char *temp);
+
 
 
 #endif  //  SRC_S21_SPRINTF_H_
