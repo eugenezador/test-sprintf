@@ -513,23 +513,23 @@ void flags_processing(char *result, st_format_item format_item) {
     char tmp[BUF_SIZE + 1] = {'\0'};
     if (format_item.plus && format_item.specifier != 'u') {
         tmp[0] = result[0] == '-' ? result[0] : '+';
-        strcpy(tmp + 1, result[0] == '-' ? result + 1 : result);
-        strcpy(result, tmp);
+        add_to_string(tmp + 1, result[0] == '-' ? result + 1 : result);
+        add_to_string(result, tmp);
     } else if (format_item.space && result[0] != '-' && format_item.specifier != 'u') {
         tmp[0] = ' ';
-        strcpy(tmp + 1, result);
-        strcpy(result, tmp);
+        add_to_string(tmp + 1, result);
+        add_to_string(result, tmp);
     }
     if (format_item.width > (int)strlen(result)) {
         int i = format_item.width - strlen(result);
         if (!format_item.minus) {
             memset(tmp, format_item.nullik ? '0' : ' ', i);
-            strcpy(tmp + i, result);
+            add_to_string(tmp + i, result);
         } else {
-            strcpy(tmp, result);
+            add_to_string(tmp, result);
             memset(tmp + strlen(tmp), ' ', i);
         }
-        strcpy(result, tmp);
+        add_to_string(result, tmp);
     }
-    printf("tar res = %s\n", result);
+    printf("flag res = %s\n", result);
 }

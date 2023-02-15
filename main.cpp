@@ -69,7 +69,7 @@ int main()
               char str1[400];
                  char str2[400];
                  char str3[400] = "test: %-+ 025.5f!\ttest: %- 020.4f\ttest: %+ 016.6f!";
-                 double num = -837564.4753366;
+                 double num = 837564.4753366;
                  int a = sprintf(str1, str3, num, num, num);
                   int b =  s21_sprintf(str2, str3, num, num, num);
         printf("origin = %s\n", str1);
