@@ -1,7 +1,7 @@
 #include "s21_sprintf.h"
 
 int s21_sprintf(char *str, const char *format, ...) {
-  st_format_item format_item = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  st_format_item format_item = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   char *str_begin = str;
   va_list args;
   va_start(args, format);
@@ -18,6 +18,7 @@ int s21_sprintf(char *str, const char *format, ...) {
       format_item.plus = 0;
       format_item.space = 0;
       format_item.nullik = 0;
+      format_item.grill = 0;
       format_item.width = 0;
       format_item.precision = 0;
       format_item.precision_set = 0;
@@ -233,7 +234,7 @@ void octal_processing(char *result, va_list args, char *temp,
   }
 
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(temp, format_item);
+  flags_processing(result, format_item, formated_temp);
 }
 
 void octal_to_string(long long octal_value, char *result) {
@@ -273,27 +274,25 @@ void octal_to_string(long long octal_value, char *result) {
 
 void int_processing(char *result, va_list args, char *temp,
                     st_format_item format_item, char *formated_temp) {
-  //   int64_t d_value = va_arg(args, int64_t);
+     int64_t d_value = va_arg(args, int64_t);
   //   printf("d val = %lld\n", d_value);
   // printf("1 int = %ld\n", d_value);
   if (format_item.length == 'h') {
-    int d_value = va_arg(args, int);
+//    int d_value = va_arg(args, int);
     d_value = (short int)d_value;
     int_to_string(d_value, temp);
     // add_to_string(result, temp);
   } else if (format_item.length == 'l') {
-    long d_value = va_arg(args, long);
+//    long d_value = va_arg(args, long);
     int_to_string(d_value, temp);
     // add_to_string(result, temp);
   } else {
-    int d_value = va_arg(args, int);
+//    int d_value = va_arg(args, int);
     int_to_string(d_value, temp);
-    // presicion_processing(format_item, temp, result);
-    // add_to_string(result, temp);
   }
 
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(temp, format_item);
+  flags_processing(result, format_item, formated_temp);
 }
 
 void u_int_processing(char *result, va_list args, char *temp,
@@ -308,7 +307,7 @@ void u_int_processing(char *result, va_list args, char *temp,
 
   int_to_string(u_value, temp);
   presicion_processing(format_item, temp, formated_temp);
-  flags_processing(temp, format_item);
+  flags_processing(result, format_item, temp);
 }
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
@@ -378,8 +377,7 @@ void f_processing(char *result, st_format_item format_item, va_list args,
     format_item.precision = 6;
   }
   double_to_string(f_value, format_item, result);
-  printf("temp = %s\n", temp);
-  flags_processing(result, format_item);
+  flags_processing(result, format_item, temp);
 }
 
 void int_to_string(long long int_value, char *result) {
@@ -509,27 +507,39 @@ void presicion_processing(st_format_item format_item, char *value,
   // printf("pres = %s\n", result);
 }
 
-void flags_processing(char *result, st_format_item format_item) {
-    char tmp[BUF_SIZE + 1] = {'\0'};
+void flags_processing(char * value, st_format_item format_item, char *temp) {
+//    char tmp[BUF_SIZE + 1] = {'\0'};
+    char formated_value[BUF_SIZE] = {'\0'};
     if (format_item.plus && format_item.specifier != 'u') {
-        tmp[0] = result[0] == '-' ? result[0] : '+';
-        add_to_string(tmp + 1, result[0] == '-' ? result + 1 : result);
-        add_to_string(result, tmp);
-    } else if (format_item.space && result[0] != '-' && format_item.specifier != 'u') {
-        tmp[0] = ' ';
-        add_to_string(tmp + 1, result);
-        add_to_string(result, tmp);
+        temp[0] = value[0] == '-' ? value[0] : '+';
+        add_to_string(temp + 1, value[0] == '-' ? value + 1 : value);
+        add_to_string(value, temp);
+    } else if (format_item.space && value[0] != '-' && format_item.specifier != 'u') {
+        temp[0] = ' ';
+        add_to_string(temp + 1, value);
+        add_to_string(value, temp);
     }
-    if (format_item.width > (int)strlen(result)) {
-        int i = format_item.width - strlen(result);
+    if (format_item.width > (int)strlen(value)) {
+        printf("here\n");
+        int i = format_item.width - strlen(value);
+        int sign = 0;
         if (!format_item.minus) {
-            memset(tmp, format_item.nullik ? '0' : ' ', i);
-            add_to_string(tmp + i, result);
+            printf("in ne nim\n");
+//            printf("t = %c: i = %d\n", value[0], i);
+            if((value[0] == '-' || value[0] == '+') && format_item.nullik) {
+                sign = 1;
+
+            }
+            temp[0] = value[0];
+            add_to_string(formated_value, value + sign);
+            memset(temp + sign, format_item.nullik ? '0' : ' ', i );
+            printf("t = %c\n", temp[0]);
+            add_to_string(temp + i + sign, formated_value);
+            printf("tem = %s\n", temp);
         } else {
-            add_to_string(tmp, result);
-            memset(tmp + strlen(tmp), ' ', i);
+            add_to_string(temp, value);
+            memset(temp + strlen(temp), ' ', i);
         }
-        add_to_string(result, tmp);
+        add_to_string(value, temp);
     }
-    printf("flag res = %s\n", result);
 }
