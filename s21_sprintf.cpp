@@ -161,7 +161,7 @@ void arg_selector(st_format_item format_item, char *result, va_list args) {
   } else if (format_item.specifier == 'o'){
     octal_processing(result, args, temp, format_item, formated_temp);
   } else if (format_item.specifier == 'p') {
-      p_processing(result, args, format_item);
+      p_processing(result, args, format_item, temp, formated_temp);
   } else if (format_item.specifier == '%') {
     result[0] = '%';  // !!!!
   }
@@ -235,7 +235,7 @@ void octal_processing(char *result, va_list args, char *temp,
     octal_to_string(o_value, temp);
   }
 
-  presicion_processing(format_item, temp, formated_temp);
+  precicion_processing(format_item, temp, formated_temp);
   flags_processing(result, format_item, formated_temp);
 }
 
@@ -293,7 +293,7 @@ void int_processing(char *result, va_list args, char *temp,
     int_to_string(d_value, temp);
   }
 
-  presicion_processing(format_item, temp, formated_temp);
+  precicion_processing(format_item, temp, formated_temp);
   flags_processing(result, format_item, formated_temp);
 }
 
@@ -308,7 +308,7 @@ void u_int_processing(char *result, va_list args, char *temp,
   }
 
   u_int_to_string(u_value, temp);
-  presicion_processing(format_item, temp, formated_temp);
+  precicion_processing(format_item, temp, formated_temp);
   flags_processing(result, format_item, formated_temp);
 }
 
@@ -322,20 +322,20 @@ void p_processing(char *result, va_list args, st_format_item format_item,
       p_value = (unsigned long int)p_value;
     }
     hex_u_int_to_string(p_value, temp);
-    presicion_processing(format_item, temp, formated_temp);
-    add_ox(formated_temp, formated_temp);
+    precicion_processing(format_item, temp, formated_temp);
+    add_ox(formated_temp, format_item);
     flags_processing(result, format_item, temp);
 }
 
 void add_ox(char *value, st_format_item format_item) {
-    if (!is_zero_values(value) || format_item.specifier == 'p') {
+    if (!is_null_values(value) || format_item.specifier == 'p') {
         memmove(value + 2, value, strlen(value));
         value[0] = '0';
         value[1] = 'x';
     }
 }
 
-int is_zero_values(char *array) {
+int is_null_values(char *array) {
     int result = 0;
     while(*array) {
         if(*array == '0') {
@@ -345,6 +345,28 @@ int is_zero_values(char *array) {
     }
     return result;
 }
+
+//void hex_processing(char *result, va_list args, st_format_item format_item,
+//                    char *temp, char *formated_temp) {
+//    unsigned long long hex = va_arg(args, unsigned long long);
+//    switch (format_item.length) {
+//    case 0:
+//        val = (uint32_t)val;
+//        break;
+//    case 'h':
+//        val = (uint16_t)val;
+//        break;
+//    case 'l':
+//        val = (uint64_t)val;
+//        break;
+//    }
+//    unsigned_num_to_string(val, buff);
+//    format_precision(buff, f);
+//    if (f.hash) {
+//        prepend_ox(buff, f);
+//    }
+//    format_flags(buff, f);
+//}
 
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
@@ -454,12 +476,12 @@ void int_to_string(long long int_value, char *result) {
 
 void u_int_to_string(unsigned long long int u_int_value, char *result) {
   int k = 0;
-  int add_sign = 0;
+//  int add_sign = 0;
 
-  if (u_int_value < 0) {
-    u_int_value = -u_int_value;
-    add_sign = 1;
-  }
+//  if (u_int_value < 0) {
+//    u_int_value = -u_int_value;
+//    add_sign = 1;
+//  }
 
   if (u_int_value == 0) {
     result[k] = '0';
@@ -472,13 +494,15 @@ void u_int_to_string(unsigned long long int u_int_value, char *result) {
     k++;
   }
 
-  if (add_sign) {
-    result[k] = '-';
-    k++;
-  }
+//  if (add_sign) {
+//    result[k] = '-';
+//    k++;
+//  }
 
   result[k] = '\0';
 
+
+  // reverse
   char tmp = '\0';
   for (int i = 0; i < k / 2; i++) {
     tmp = result[i];
@@ -498,12 +522,12 @@ char *add_to_string(char *result, char *temp) {
 }
 void hex_u_int_to_string(unsigned long long u_int_value, char *result) {
     int k = 0;
-    int add_sign = 0;
+//    int add_sign = 0;
 
-    if (u_int_value < 0) {
-      u_int_value = -u_int_value;
-      add_sign = 1;
-    }
+//    if (u_int_value < 0) {
+//      u_int_value = -u_int_value;
+//      add_sign = 1;
+//    }
 
     if (u_int_value == 0) {
       result[k] = '0';
@@ -512,14 +536,14 @@ void hex_u_int_to_string(unsigned long long u_int_value, char *result) {
 
     while (u_int_value > 0) {
       result[k] = u_int_value % 16 + '0';
-      u_int_value = u_int_value / 10;
+      u_int_value = u_int_value / 16;
       k++;
     }
 
-    if (add_sign) {
-      result[k] = '-';
-      k++;
-    }
+//    if (add_sign) {
+//      result[k] = '-';
+//      k++;
+//    }
 
     result[k] = '\0';
 
@@ -576,7 +600,7 @@ void double_to_string(long double double_value, st_format_item format_item,
   }
 }
 
-void presicion_processing(st_format_item format_item, char *value,
+void precicion_processing(st_format_item format_item, char *value,
                           char *result) {
   int len = strlen(value);
   int i = 0;
@@ -634,7 +658,6 @@ void flags_processing(char * value, st_format_item format_item, char *temp) {
 //            printf("t = %c: i = %d\n", value[0], i);
             if((value[0] == '-' || value[0] == '+') && format_item.nullik) {
                 sign = 1;
-
             }
             temp[0] = value[0];
             add_to_string(formated_value, value + sign);
@@ -649,3 +672,77 @@ void flags_processing(char * value, st_format_item format_item, char *temp) {
         add_to_string(value, temp);
     }
 }
+
+
+//void parse_float_g_G(flags f, char *buff, va_list va) {
+//    long double val = 0;
+//    if (f.length == 'L') {
+//        val = va_arg(va, long double);
+//    } else {
+//        val = va_arg(va, double);
+//    }
+
+//    if (!f.is_precision_set) {
+//        f.precision = 6;
+//    }
+//    if (f.precision == 0)
+//        f.precision = 1;
+//    int precision = f.precision;
+//    long double m_val = val;
+//    int pow = 0;
+//    if ((int)val - val) {
+//        while ((int)m_val == 0) {
+//            pow++;
+//            m_val *= 10;
+//        }
+//    }
+//    if (pow > 4) {
+//        f.precision = 0;
+//        double_to_string(m_val, buff, f);
+//    } else {
+//        f.precision = 10;
+//        double_to_string(val, buff, f);
+//    }
+//    format_gG_precision(buff, precision);
+//    if (pow > 4)
+//        prepend_mantiss(buff, pow, '-');
+//    remove_trailing_zeroes(buff);
+//    format_flags(buff, f);
+//}
+
+//void remove_trailing_zeroes(char *buff) {
+//    int len = strlen(buff);
+//    char *dot = strchr(buff, '.');
+//    if (dot) {
+//        for (int i = len - 1; buff[i] != '.'; i--) {
+//            if (buff[i] == '0')
+//                buff[i] = '\0';
+//            else
+//                break;
+//        }
+//        if (dot[1] == '\0')
+//            dot[0] = '\0';
+//    }
+//}
+
+//void format_gG_precision(char *buff, int precision) {
+//    int sig_digs = 0;
+//    size_t len = strlen(buff);
+//    int not_zero_found = 0;
+//    for (size_t i = 0; i < strlen(buff); i++) {
+//        if ((buff[i] == '0' && !not_zero_found) || buff[i] == '.')
+//            continue;
+//        else
+//            not_zero_found = 1;
+
+//        if (s21_isdigit(buff[i]) && not_zero_found) {
+//            sig_digs++;
+//        }
+//        if (sig_digs == precision && i + 1 < len) {
+//            int next = buff[i + 1] == '.' ? 2 : 1;
+//            buff[i] = buff[i + next] - '0' > 5 ? (char)(buff[i] + 1) : buff[i];
+//            buff[i + 1] = '\0';
+//            break;
+//        }
+//    }
+//}

@@ -75,7 +75,12 @@ void int_processing(char *result, va_list args, char *temp,
 void u_int_processing(char *result, va_list args, char *temp,
                       st_format_item format_item, char *formated_temp);
 
-void p_processing(char *result, va_list args, st_format_item format_item);
+void p_processing(char *result, va_list args, st_format_item format_item,
+                  char *temp, char *formated_temp);
+
+void add_ox(char *value, st_format_item format_item);
+
+int is_null_values(char *array);
 
 void s_processing(char *result, va_list args, st_format_item format_item);
 
@@ -97,7 +102,7 @@ char *add_to_string(char *result, char *temp);
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result);
 
-void presicion_processing(st_format_item format_item, char *value,
+void precicion_processing(st_format_item format_item, char *value,
                           char *result);
 
 
