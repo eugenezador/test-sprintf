@@ -16,7 +16,7 @@
 
 #define BUF_SIZE 4096
 
-#define INT32_MAX 2147483647
+// #define INT32_MAX 2147483647
 // #define INT32_MIN -2147483648
 
 typedef struct {
@@ -42,9 +42,11 @@ int s21_sprintf(char *str, const char *format, ...);
 
 const char *parse_flags(st_format_item *format_item, const char *format);
 
-const char *parse_width(st_format_item *format_item, const char *format);
+const char *parse_width(st_format_item *format_item, const char *format,
+                        va_list args);
 
-const char *parse_precision(st_format_item *format_item, const char *format);
+const char *parse_precision(st_format_item *format_item, const char *format,
+                            va_list args);
 
 const char *get_number(const char *format, int *value);
 
@@ -65,7 +67,7 @@ void do_char(st_format_item args, char *result, char c_value);
 void do_wide_char(st_format_item format_item, char *result, wchar_t w_c);
 
 void octal_processing(char *result, va_list args, char *temp,
-                    st_format_item format_item, char *formated_temp);
+                      st_format_item format_item, char *formated_temp);
 
 void octal_to_string(long long octal_value, char *result);
 
@@ -93,21 +95,25 @@ void f_processing(char *result, st_format_item format_item, va_list args,
 
 void int_to_string(long long int_value, char *result);
 
+int is_int_sign(long long value);
+
 void u_int_to_string(unsigned long long int_value, char *result);
 
-void hex_u_int_to_string(unsigned long long int_value, char *result);
+void hex_processing(char *result, va_list args, st_format_item format_item,
+                    char *temp, char *formated_temp);
+
+void hex_u_int_to_string(unsigned long long u_int_value, char *result, st_format_item foramt_item);
 
 char *add_to_string(char *result, char *temp);
 
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result);
 
+void reverse_array(char *result);
+
 void precicion_processing(st_format_item format_item, char *value,
                           char *result);
 
-
 void flags_processing(char *result, st_format_item format_item, char *temp);
-
-
 
 #endif  //  SRC_S21_SPRINTF_H_

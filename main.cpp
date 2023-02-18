@@ -107,8 +107,8 @@ int main()
     //       32 FAIL
                char str1[400];
                   char str2[400];
-                  char str3[400] = "test: %+050.14f!\ttest: % +-0f!\ttest: %+f!";
-                  double num = 947.6785;
+                  char str3[400] = "test: %f!\ttest: % +-0f!\ttest: %+f!";
+                  double num = -947.6785;
                   int a = sprintf(str1, str3, num, num, num);
                   int b = s21_sprintf(str2, str3, num, num, num);
                       printf("32origin = %s\n", str1);
@@ -119,9 +119,6 @@ int main()
         } else {
             printf("FAIL!\n");
         }
-
-        int x = 14;
-        printf("p = %p\n", x);
 
     return 0;
 }
