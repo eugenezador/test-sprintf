@@ -807,3 +807,87 @@ void flags_processing(char *value, st_format_item format_item, char *temp) {
 //    }
 //}
 
+//void parse_mantiss(flags f, char *buff, va_list va) {
+//    long double val = 0;
+//    if (f.length == 'L') {
+//        val = va_arg(va, long double);
+//    } else {
+//        val = va_arg(va, double);
+//    }
+//    int pow = 0;
+//    char sign = (int)val == 0 ? '-' : '+';
+
+//    if ((int)val - val) {
+//        while ((int)val == 0) {
+//            pow++;
+//            val *= 10;
+//        }
+//    } else {
+//        sign = '+';
+//    }
+//    while ((int)val / 10 != 0) {
+//        pow++;
+//        val /= 10;
+//    }
+
+//    if (!f.is_precision_set)
+//        f.precision = 6;
+//    double_to_string(val, buff, f);
+//    prepend_mantiss(buff, pow, sign);
+//    format_flags(buff, f);
+//}
+
+//void prepend_mantiss(char *str, int pow, char sign) {
+//    int len = s21_strlen(str);
+//    str[len] = 'e';
+//    str[len + 1] = sign;
+//    str[len + 3] = pow % 10 + '0';
+//    pow /= 10;
+//    str[len + 2] = pow % 10 + '0';
+//    str[len + 4] = '\0';
+//}
+
+
+//void double_to_string(long double val, char *ret, flags f) {
+//    char buff[BUFF_SIZE] = {'\0'};
+//    int idx = BUFF_SIZE - 2;
+//    bool neg = val < 0 ? 1 : 0;
+//    val = neg ? val * -1 : val;
+//    long double l = 0, r = modfl(val, &l);
+//    if (f.precision == 0) {
+//        l = roundl(val);
+//        r = 0;
+//    }
+//    char fractions[BUFF_SIZE] = {'\0'};
+//    for (int i = 0; i < f.precision; i++) {
+//        r = r * 10;
+//        fractions[i] = (int)r + '0';
+//    }
+//    long long right = roundl(r), left = l;
+//    if (!right) {
+//        for (int i = 0; i < f.precision; idx--, i++)
+//            buff[idx] = '0';
+//    } else {
+//        for (int i = s21_strlen(fractions); right || i > 0;
+//             right /= 10, idx--, i--)
+//            buff[idx] = (int)(right % 10 + 0.05) + '0';
+//    }
+//    if ((f.is_precision_set && f.precision != 0) || (int)r ||
+//        (!f.is_precision_set && val == 0) || s21_strlen(fractions))
+//        buff[idx--] = '.';
+//    if (!left) {
+//        buff[idx] = '0';
+//        idx--;
+//    } else {
+//        for (; left; left /= 10, idx--)
+//            buff[idx] = (int)(left % 10) + '0';
+//    }
+//    for (int i = 0; buff[idx + 1]; idx++, i++) {
+//        if (neg && i == 0) {
+//            ret[i] = '-';
+//            i++;
+//        }
+//        ret[i] = buff[idx + 1];
+//    }
+//}
+
