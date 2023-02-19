@@ -848,46 +848,44 @@ void flags_processing(char *value, st_format_item format_item, char *temp) {
 //}
 
 
-//void double_to_string(long double val, char *ret, flags f) {
-//    char buff[BUFF_SIZE] = {'\0'};
-//    int idx = BUFF_SIZE - 2;
-//    bool neg = val < 0 ? 1 : 0;
-//    val = neg ? val * -1 : val;
-//    long double l = 0, r = modfl(val, &l);
-//    if (f.precision == 0) {
-//        l = roundl(val);
-//        r = 0;
-//    }
-//    char fractions[BUFF_SIZE] = {'\0'};
-//    for (int i = 0; i < f.precision; i++) {
-//        r = r * 10;
-//        fractions[i] = (int)r + '0';
-//    }
-//    long long right = roundl(r), left = l;
-//    if (!right) {
-//        for (int i = 0; i < f.precision; idx--, i++)
-//            buff[idx] = '0';
-//    } else {
-//        for (int i = s21_strlen(fractions); right || i > 0;
-//             right /= 10, idx--, i--)
-//            buff[idx] = (int)(right % 10 + 0.05) + '0';
-//    }
-//    if ((f.is_precision_set && f.precision != 0) || (int)r ||
-//        (!f.is_precision_set && val == 0) || s21_strlen(fractions))
-//        buff[idx--] = '.';
-//    if (!left) {
-//        buff[idx] = '0';
-//        idx--;
-//    } else {
-//        for (; left; left /= 10, idx--)
-//            buff[idx] = (int)(left % 10) + '0';
-//    }
-//    for (int i = 0; buff[idx + 1]; idx++, i++) {
-//        if (neg && i == 0) {
-//            ret[i] = '-';
-//            i++;
-//        }
-//        ret[i] = buff[idx + 1];
-//    }
-//}
+// void double_to_string(long double double_value, st_format_item format_item,
+//                       char *result) {
+//   char buff[BUF_SIZE] = {'\0'};
+//   int idx = BUF_SIZE - 2;
+//   int neg = double_value < 0 ? 1 : 0;
+//   double_value = neg ? double_value * -1 : double_value;
+//   long double l = 0, r = modfl(double_value, &l);
+//   if (format_item.precision == 0) {
+//     l = roundl(double_value);
+//     r = 0;
+//   }
+//   char fractions[BUF_SIZE] = {'\0'};
+//   for (int i = 0; i < format_item.precision; i++) {
+//     r = r * 10;
+//     fractions[i] = (int)r + '0';
+//   }
+//   long long right = roundl(r), left = l;
+//   if (!right) {
+//     for (int i = 0; i < format_item.precision; idx--, i++) buff[idx] = '0';
+//   } else {
+//     for (int i = strlen(fractions); right || i > 0; right /= 10, idx--, i--)
+//       buff[idx] = (int)(right % 10 + 0.05) + '0';
+//   }
+//   if ((format_item.precision_set && format_item.precision != 0) || (int)r ||
+//       (!format_item.precision_set && double_value == 0) || strlen(fractions))
+//     buff[idx--] = '.';
+//   if (!left) {
+//     buff[idx] = '0';
+//     idx--;
+//   } else {
+//     for (; left; left /= 10, idx--) buff[idx] = (int)(left % 10) + '0';
+//   }
+//   for (int i = 0; buff[idx + 1]; idx++, i++) {
+//     if (neg && i == 0) {
+//       result[i] = '-';
+//       i++;
+//     }
+//     result[i] = buff[idx + 1];
+//   }
+// }
 
