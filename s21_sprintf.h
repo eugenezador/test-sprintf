@@ -60,6 +60,8 @@ int is_specifier(char ch);
 
 void arg_selector(st_format_item format_item, char *result, va_list args);
 
+void up(char * temp);
+
 void char_processing(char *result, va_list args, st_format_item format_item);
 
 void do_char(st_format_item args, char *result, char c_value);
@@ -102,12 +104,14 @@ void u_int_to_string(unsigned long long int_value, char *result);
 void hex_processing(char *result, va_list args, st_format_item format_item,
                     char *temp, char *formated_temp);
 
-void hex_u_int_to_string(unsigned long long u_int_value, char *result, st_format_item foramt_item);
+void hex_u_int_to_string(unsigned long long u_int_value, char *result,
+                         st_format_item foramt_item);
 
 char *add_to_string(char *result, char *temp);
 
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result);
+long double my_round(long double t, int prec);
 
 void reverse_array(char *result);
 
@@ -115,5 +119,17 @@ void precicion_processing(st_format_item format_item, char *value,
                           char *result);
 
 void flags_processing(char *result, st_format_item format_item, char *temp);
+
+void e_E_processing(char *result, va_list args, st_format_item format_item,
+                    char *temp);
+
+void science_format(char *string, int power, char sign);
+
+void g_G_processing(char *result, va_list args, st_format_item format_item,
+                    char *temp);
+
+void gG_precision(char *result, st_format_item format_item);
+
+void remove_trailing_zeroes(char *result);
 
 #endif  //  SRC_S21_SPRINTF_H_

@@ -40,10 +40,10 @@ int s21_sprintf(char *str, const char *format, ...) {
     str = add_to_string(str, result);
 
     // вывода символов при спец n не производиться
-        if (format_item.specifier == 'n') {
-                int *res = va_arg(args, int *);
-                *res = str - str_begin;
-            }
+    if (format_item.specifier == 'n') {
+      int *res = va_arg(args, int *);
+      *res = str - str_begin;
+    }
 
     //    if (--*str == '\0') {
     //      str++;
@@ -163,6 +163,13 @@ void arg_selector(st_format_item format_item, char *result, va_list args) {
   char temp[BUF_SIZE] = {'\0'};
   char formated_temp[BUF_SIZE] = {'\0'};
 
+//  switch(format_item.specifier) {
+//  case 'c':
+//      char_processing(result, args, format_item);
+//      break;
+
+//  }
+
   if (format_item.specifier == 'c') {
     char_processing(result, args, format_item);
   } else if (format_item.specifier == 'd' || format_item.specifier == 'i') {
@@ -180,11 +187,30 @@ void arg_selector(st_format_item format_item, char *result, va_list args) {
   } else if (format_item.specifier == 'x' || format_item.specifier == 'X') {
     hex_processing(result, args, format_item, temp, formated_temp);
   } else if (format_item.specifier == 'g' || format_item.specifier == 'G') {
-//      g_G_processing(result, args, format_item, temp, formated_temp);
-    }
-  else if (format_item.specifier == '%') {
+    g_G_processing(result, args, format_item, temp);
+  } else if (format_item.specifier == 'e' || format_item.specifier == 'E') {
+    e_E_processing(result, args, format_item, temp);
+  } else if (format_item.specifier == '%') {
     result[0] = '%';  // !!!!
   }
+
+  if (format_item.specifier == 'X' || format_item.specifier == 'E' || format_item.specifier == 'G') {
+      up(result);
+  }
+
+}
+
+void up(char * temp) {
+  char * name;
+  name = strtok(temp,":");
+
+  // Convert to upper case
+  char *s = name;
+  while (*s) {
+    *s = toupper((unsigned char) *s);
+    s++;
+  }
+
 }
 
 void char_processing(char *result, va_list args, st_format_item format_item) {
@@ -311,9 +337,9 @@ void int_processing(char *result, va_list args, char *temp,
   }
 
   precicion_processing(format_item, temp, result);
-  printf("pre = %s\n", result);
+  // printf("pre = %s\n", result);
   flags_processing(result, format_item, formated_temp);
-  printf("fla = %s\n", result);
+  // printf("fla = %s\n", result);
 }
 
 void u_int_processing(char *result, va_list args, char *temp,
@@ -369,25 +395,31 @@ int is_null_values(char *array) {
 
 void hex_processing(char *result, va_list args, st_format_item format_item,
                     char *temp, char *formated_temp) {
-  unsigned long long hex = va_arg(args, unsigned long long);
-  if (format_item.length == 'h') {
+//  unsigned long long hex = va_arg(args, unsigned long long);
+/*  if (format_item.length == 'h') {
     hex = (unsigned short)hex;
   } else if (format_item.length == 'l') {
     hex = (unsigned long long)hex;
-  } else {
+  } else*/ {
+      unsigned long long hex = va_arg(args, unsigned int);
     hex = (unsigned)hex;
-  }
+    printf("val = %llx\n", hex);
+      hex_u_int_to_string(hex, temp, format_item);
 
-  hex_u_int_to_string(hex, temp, format_item);
-  // printf("hek int = %s\n", temp);
-  precicion_processing(format_item, temp, result);
-  // printf("hek int = %s\n", formated_temp);
-  if (format_item.grill) {
-    add_ox(result, format_item);
+      precicion_processing(format_item, temp, result);
+      if (format_item.grill) {
+        add_ox(result, format_item);
+      }
+      flags_processing(result, format_item, formated_temp);
   }
-  // printf("hek int = %s\n", formated_temp);
-  flags_processing(result, format_item, formated_temp);
-  // printf("hek int = %s\n", formated_temp);
+//printf("val = %llx\n", hex);
+//  hex_u_int_to_string(hex, temp, format_item);
+
+//  precicion_processing(format_item, temp, result);
+//  if (format_item.grill) {
+//    add_ox(result, format_item);
+//  }
+//  flags_processing(result, format_item, formated_temp);
 }
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
@@ -502,7 +534,7 @@ void int_to_string(long long int_value, char *result) {
     result[k - 1 - i] = tmp;
   }
   if (flag) {
-    printf("here h\n");
+    // printf("here h\n");
     result[k - 1] += 1;
   }
 }
@@ -523,13 +555,15 @@ void u_int_to_string(unsigned long long int u_int_value, char *result) {
 
   result[k] = '\0';
 
+  reverse_array(result);
+
   // reverse
-  char tmp = '\0';
-  for (int i = 0; i < k / 2; i++) {
-    tmp = result[i];
-    result[i] = result[k - 1 - i];
-    result[k - 1 - i] = tmp;
-  }
+//  char tmp = '\0';
+//  for (int i = 0; i < k / 2; i++) {
+//    tmp = result[i];
+//    result[i] = result[k - 1 - i];
+//    result[k - 1 - i] = tmp;
+//  }
 }
 
 char *add_to_string(char *result, char *temp) {
@@ -542,115 +576,124 @@ char *add_to_string(char *result, char *temp) {
   return result;
 }
 
-void hex_u_int_to_string(unsigned long long u_int_value, char *result, st_format_item format_item) {
+void hex_u_int_to_string(unsigned long long u_int_value, char *result,
+                         st_format_item format_item) {
+
   int k = 0;
-  char ascii_shift = 0;
+  char to_lower_shift = 0;
   char bukva = 0;
   if (u_int_value == 0) {
     result[k] = '0';
     k++;
   }
-  if(format_item.specifier == 'X') {
-      ascii_shift = 32;
+
+  if (format_item.specifier == 'X') {
+    to_lower_shift = 32;
   }
 
-  while (u_int_value > 0) {
-    bukva = (char)(u_int_value % 16);
-    switch (bukva + ascii_shift) {
-      case ('a'):
-        result[k] = 'a' + ascii_shift;
-        break;
-    case 'b':
-        result[k] = 'a' + ascii_shift;
-        break;
-    case 'c':
-        result[k] = 'c' + ascii_shift;
-        break;
-    case 'd':
-        result[k] = 'd' + ascii_shift;
-        break;
-    case 'e':
-        result[k] = 'c' + ascii_shift;
-        break;
-    case 'f':
-        result[k] = 'd' + ascii_shift;
-        break;
-    default:
-        result[k] = u_int_value % 16 + '0';
-        break;
-    }
-    // printf("hex resu [%d] = %c\n", k, result[k]);
-    // result[k] = "0123456789abcdef"[u_int_value % 16];
-    u_int_value = u_int_value / 16;
-    k++;
-}
+  while (u_int_value != 0) {
+
+          bukva = (u_int_value % 16);
+
+          if (bukva < 10) {
+              bukva = bukva + 48;
+          }
+          else {
+              bukva = bukva + 87;
+          }
+          // printf("hex resu [%d] = %c\n", k, result[k]);
+          result[k++] = bukva;
+          u_int_value /= 16;
+      }
+
   result[k] = '\0';
 
-  char tmp = '\0';
-  for (int i = 0; i < k / 2; i++) {
-    tmp = result[i];
-    result[i] = result[k - 1 - i];
-    result[k - 1 - i] = tmp;
-  }
+  reverse_array(result);
+//  char tmp = '\0';
+//  for (int i = 0; i < k / 2; i++) {
+//    tmp = result[i];
+//    result[i] = result[k - 1 - i];
+//    result[k - 1 - i] = tmp;
+//  }
 }
 
 void double_to_string(long double double_value, st_format_item format_item,
                       char *result) {
   long double left = 0.0, right = 0.0;
-  long long i_left = 0, i_right = 0;
-  char buf[800] = {'\0'};
-  char i_temp[200] = {'\0'};
-  int k = 0;  // buf iterator
+  long double temp_right = 0;
+  long long int_left = 0;
+  long long int_right = 0;
+  char buf[BUF_SIZE] = {'\0'};
+  int k = 0;  // buf_iterator
+  int do_round = 0;
+  // int add_sign = 0, negative = 0;
+
   right = modfl(double_value, &left);
 
+  // целая часть
   if (format_item.precision_set && format_item.precision == 0) {
-    i_left = roundl(double_value);
-  } else {
-    i_left = (long long)double_value;
+    int_left = roundl(double_value);
+  } else if (format_item.precision) {
+    int_left = (long long)double_value;
   }
+
   if (double_value < 0) {
     right *= -1.0;
+    // negative = 1;
   }
-  int_to_string(i_left, buf);
+  // if (double_value == 0 && negative) {
+  //   buf[0] = '-';
+  //   add_sign = 1;
+  // }
+
+  temp_right = my_round(right, format_item.precision);
+  if ((int)temp_right && format_item.precision) {
+    (int_left > 0) ? int_left++ : int_left--;
+    do_round = 1;
+  }
+  // printf("temp right = %Lf\n", temp_right);
+
+  int_to_string(labs(int_left), buf);
+  if (double_value < 0) result = add_to_string(result, "-");
   result = add_to_string(result, buf);
+
   // добавляем точку если есть решетка
   if (format_item.grill &&
       !((format_item.precision_set && format_item.precision != 0) ||
         !format_item.precision_set)) {
     result = add_to_string(result, ".");
   }
-  // добавляем дробную часть
+  //
+
   if ((format_item.precision_set && format_item.precision != 0) ||
       !format_item.precision_set) {
-    // char dot[2] = ".";
     result = add_to_string(result, ".");
-    // обработка правой части
-    memset(buf, '\0', 400);  // чистим буфер
+    memset(buf, '\0', BUF_SIZE);
+
     for (int i = 0; i < format_item.precision; i++) {
-      right *= 10;
-      // i_right = right;
-      if (fabsl(double_value) > 0.0000 && fabsl(double_value) < 1.0000) {
-        i_right = floor(right);
+      temp_right *= 10;
+      if (do_round) {
+        buf[k++] = '0';
       } else {
-        i_right = floor(right);
+        int_right = floor(temp_right);
+        buf[k++] = int_right % 10 + '0';
       }
-      if (i_right == 0) {
-        buf[k++] = i_right % 10 + '0';
-        // printf("buf[%d] = %c\n", k, buf[k]);
-      }
-      // else {
-      //   // i_right = right;
-      //   buf[k++] = i_right % 10 + '0';
-      // }
     }
     buf[k] = '\0';
-    if (i_right) {
-      i_right = roundl(right);
-      int_to_string(i_right, i_temp);
-      strcat(buf, i_temp);
-    }
     result = add_to_string(result, buf);
   }
+}
+
+long double my_round(long double value, int precision) {
+  for (int i = 0; i < precision; i++) value *= 10;
+  long double n = 0;
+  modfl(value, &n);
+  if (value - n >= 0.5) {
+    n++;
+  }
+  value = n;
+  for (int i = 0; i < precision; i++) value /= 10;
+  return value;
 }
 
 void reverse_array(char *result) {
@@ -735,157 +778,114 @@ void flags_processing(char *value, st_format_item format_item, char *temp) {
   // printf("flags res = %s\n", value);
 }
 
-// void parse_float_g_G(flags f, char *buff, va_list va) {
-//     long double val = 0;
-//     if (f.length == 'L') {
-//         val = va_arg(va, long double);
-//     } else {
-//         val = va_arg(va, double);
-//     }
+void e_E_processing(char *result, va_list args, st_format_item format_item,
+                    char *temp) {
+  long double value = 0;
+  if (format_item.length == 'L') {
+    value = va_arg(args, long double);
+  } else {
+    value = va_arg(args, double);
+  }
+  int power = 0;
+  char sign = '0';
+  if ((int)value == 0) {
+    sign = '-';
+  } else {
+    sign = '+';
+  }
 
-//    if (!f.is_precision_set) {
-//        f.precision = 6;
-//    }
-//    if (f.precision == 0)
-//        f.precision = 1;
-//    int precision = f.precision;
-//    long double m_val = val;
-//    int pow = 0;
-//    if ((int)val - val) {
-//        while ((int)m_val == 0) {
-//            pow++;
-//            m_val *= 10;
-//        }
-//    }
-//    if (pow > 4) {
-//        f.precision = 0;
-//        double_to_string(m_val, buff, f);
-//    } else {
-//        f.precision = 10;
-//        double_to_string(val, buff, f);
-//    }
-//    format_gG_precision(buff, precision);
-//    if (pow > 4)
-//        prepend_mantiss(buff, pow, '-');
-//    remove_trailing_zeroes(buff);
-//    format_flags(buff, f);
-//}
+  if ((int)value - value) {
+    while ((int)value == 0) {
+      power++;
+      value *= 10;
+    }
+  } else {
+    sign = '+';
+  }
+  while ((int)value / 10 != 0) {
+    power++;
+    value /= 10;
+  }
 
-// void remove_trailing_zeroes(char *buff) {
-//     int len = strlen(buff);
-//     char *dot = strchr(buff, '.');
-//     if (dot) {
-//         for (int i = len - 1; buff[i] != '.'; i--) {
-//             if (buff[i] == '0')
-//                 buff[i] = '\0';
-//             else
-//                 break;
-//         }
-//         if (dot[1] == '\0')
-//             dot[0] = '\0';
-//     }
-// }
+  if (!format_item.precision_set) format_item.precision = 6;
+  double_to_string(value, format_item, result);
+  science_format(result, power, sign);
+  flags_processing(result, format_item, temp);
+}
 
-// void format_gG_precision(char *buff, int precision) {
-//     int sig_digs = 0;
-//     size_t len = strlen(buff);
-//     int not_zero_found = 0;
-//     for (size_t i = 0; i < strlen(buff); i++) {
-//         if ((buff[i] == '0' && !not_zero_found) || buff[i] == '.')
-//             continue;
-//         else
-//             not_zero_found = 1;
+void science_format(char *string, int power, char sign) {
+  int length = strlen(string);
+  string[length] = 'e';
+  string[length + 1] = sign;
+  string[length + 3] = power % 10 + '0';
+  power /= 10;
+  string[length + 2] = power % 10 + '0';
+  string[length + 4] = '\0';
+}
 
-//        if (s21_isdigit(buff[i]) && not_zero_found) {
-//            sig_digs++;
-//        }
-//        if (sig_digs == precision && i + 1 < len) {
-//            int next = buff[i + 1] == '.' ? 2 : 1;
-//            buff[i] = buff[i + next] - '0' > 5 ? (char)(buff[i] + 1) :
-//            buff[i]; buff[i + 1] = '\0'; break;
-//        }
-//    }
-//}
+void g_G_processing(char *result, va_list args, st_format_item format_item,
+                    char *temp) {
+  long double value = 0;
+  if (format_item.length == 'L') {
+    value = va_arg(args, long double);
+  } else {
+    value = va_arg(args, double);
+  }
+  if (!format_item.precision_set) format_item.precision = 6;
+  if (format_item.precision == 0) format_item.precision = 1;
+  long double copy_value = value;
+  int power = 0;
+  if ((int)value == 0) {
+    while ((int)copy_value == 0) {
+      copy_value *= 10;
+      power++;
+    }
+  }
+  if (power <= 4) {
+    format_item.precision = 10;
+    double_to_string(copy_value, format_item, result);
+  } else {
+    format_item.precision = 0;
+    double_to_string(value, format_item, result);
+  }
+  gG_precision(result, format_item);
+  if (power > 4) science_format(result, power, '-');
+  remove_trailing_zeroes(result);
+  flags_processing(result, format_item, temp);
+}
 
-//void parse_mantiss(flags f, char *buff, va_list va) {
-//    long double val = 0;
-//    if (f.length == 'L') {
-//        val = va_arg(va, long double);
-//    } else {
-//        val = va_arg(va, double);
-//    }
-//    int pow = 0;
-//    char sign = (int)val == 0 ? '-' : '+';
+void gG_precision(char *result, st_format_item format_item) {
+  int flag = 0;
+  int sign_val = 0;
+  for (size_t i = 0; i < strlen(result); i++) {
+    if ((result[i] == '0' && !flag) || result[i] == '.')
+      continue;
+    else
+      flag = 1;
 
-//    if ((int)val - val) {
-//        while ((int)val == 0) {
-//            pow++;
-//            val *= 10;
-//        }
-//    } else {
-//        sign = '+';
-//    }
-//    while ((int)val / 10 != 0) {
-//        pow++;
-//        val /= 10;
-//    }
+    if (is_number(result[i]) && flag) {
+      sign_val++;
+    }
+    if (sign_val == format_item.precision && i + 1 < strlen(result)) {
+      int temp = result[i + 1] == '.' ? 2 : 1;
+      result[i] =
+          result[i + temp] - '0' > 5 ? (char)(result[i] + 1) : result[i];
+      result[i + 1] = '\0';
+      break;
+    }
+  }
+}
 
-//    if (!f.is_precision_set)
-//        f.precision = 6;
-//    double_to_string(val, buff, f);
-//    prepend_mantiss(buff, pow, sign);
-//    format_flags(buff, f);
-//}
-
-//void prepend_mantiss(char *str, int pow, char sign) {
-//    int len = s21_strlen(str);
-//    str[len] = 'e';
-//    str[len + 1] = sign;
-//    str[len + 3] = pow % 10 + '0';
-//    pow /= 10;
-//    str[len + 2] = pow % 10 + '0';
-//    str[len + 4] = '\0';
-//}
-
-
-// void double_to_string(long double double_value, st_format_item format_item,
-//                       char *result) {
-//   char buff[BUF_SIZE] = {'\0'};
-//   int idx = BUF_SIZE - 2;
-//   int neg = double_value < 0 ? 1 : 0;
-//   double_value = neg ? double_value * -1 : double_value;
-//   long double l = 0, r = modfl(double_value, &l);
-//   if (format_item.precision == 0) {
-//     l = roundl(double_value);
-//     r = 0;
-//   }
-//   char fractions[BUF_SIZE] = {'\0'};
-//   for (int i = 0; i < format_item.precision; i++) {
-//     r = r * 10;
-//     fractions[i] = (int)r + '0';
-//   }
-//   long long right = roundl(r), left = l;
-//   if (!right) {
-//     for (int i = 0; i < format_item.precision; idx--, i++) buff[idx] = '0';
-//   } else {
-//     for (int i = strlen(fractions); right || i > 0; right /= 10, idx--, i--)
-//       buff[idx] = (int)(right % 10 + 0.05) + '0';
-//   }
-//   if ((format_item.precision_set && format_item.precision != 0) || (int)r ||
-//       (!format_item.precision_set && double_value == 0) || strlen(fractions))
-//     buff[idx--] = '.';
-//   if (!left) {
-//     buff[idx] = '0';
-//     idx--;
-//   } else {
-//     for (; left; left /= 10, idx--) buff[idx] = (int)(left % 10) + '0';
-//   }
-//   for (int i = 0; buff[idx + 1]; idx++, i++) {
-//     if (neg && i == 0) {
-//       result[i] = '-';
-//       i++;
-//     }
-//     result[i] = buff[idx + 1];
-//   }
-// }
+void remove_trailing_zeroes(char *result) {
+  char *point = strchr(result, '.');
+  if (point) {
+    for (int i = strlen(result) - 1; result[i] != '.'; i--) {
+      if (result[i] == '0')
+        result[i] = '\0';
+      else
+        break;
+    }
+    if (point[1] == '\0') point[0] = '\0';
+  }
+}
 
