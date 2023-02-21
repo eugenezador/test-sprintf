@@ -746,12 +746,12 @@ void precicion_processing(st_format_item format_item, char *value,
 void flags_processing(char *value, st_format_item format_item, char *temp) {
   //    char tmp[BUF_SIZE + 1] = {'\0'};
   char formated_value[BUF_SIZE] = {'\0'};
-  if (format_item.plus && format_item.specifier != 'u') {
+  if (format_item.plus && (format_item.specifier != 'u' /*|| format_item.specifier != 'x' || format_item.specifier != 'X'*/)) {
     temp[0] = value[0] == '-' ? value[0] : '+';
     add_to_string(temp + 1, value[0] == '-' ? value + 1 : value);
     add_to_string(value, temp);
   } else if (format_item.space && value[0] != '-' &&
-             format_item.specifier != 'u') {
+             (format_item.specifier != 'u' /*|| format_item.specifier != 'x' || format_item.specifier != 'X'*/)) {
     temp[0] = ' ';
     add_to_string(temp + 1, value);
     add_to_string(value, temp);
@@ -807,7 +807,9 @@ void e_E_processing(char *result, va_list args, st_format_item format_item,
     value /= 10;
   }
 
-  if (!format_item.precision_set) format_item.precision = 6;
+  if (!format_item.precision_set) {
+      format_item.precision = 6;
+  }
   double_to_string(value, format_item, result);
   science_format(result, power, sign);
   flags_processing(result, format_item, temp);
