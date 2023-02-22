@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 /////////////////
 
 #define BUF_SIZE 4096
@@ -82,9 +83,9 @@ void u_int_processing(char *result, va_list args, char *temp,
 void p_processing(char *result, va_list args, st_format_item format_item,
                   char *temp, char *formated_temp);
 
-void add_ox(char *value, st_format_item format_item);
+void add_hex_Ox(char *value, st_format_item format_item);
 
-int is_null_values(char *array);
+int not_all_zeroes(char *array);
 
 void s_processing(char *result, va_list args, st_format_item format_item);
 
@@ -104,8 +105,7 @@ void u_int_to_string(unsigned long long int_value, char *result);
 void hex_processing(char *result, va_list args, st_format_item format_item,
                     char *temp, char *formated_temp);
 
-void hex_u_int_to_string(unsigned long long u_int_value, char *result,
-                         st_format_item foramt_item);
+void hex_u_int_to_string(unsigned long long u_int_value, char *result);
 
 char *add_to_string(char *result, char *temp);
 
@@ -119,6 +119,8 @@ void precicion_processing(st_format_item format_item, char *value,
                           char *result);
 
 void flags_processing(char *result, st_format_item format_item, char *temp);
+
+int is_u_int_spec(st_format_item format_item);
 
 void e_E_processing(char *result, va_list args, st_format_item format_item,
                     char *temp);

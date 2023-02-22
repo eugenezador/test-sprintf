@@ -39,6 +39,8 @@ int s21_sprintf(char *str, const char *format, ...) {
     arg_selector(format_item, result, args);
     str = add_to_string(str, result);
 
+
+
     // вывода символов при спец n не производиться
     if (format_item.specifier == 'n') {
       int *res = va_arg(args, int *);
@@ -197,6 +199,7 @@ void arg_selector(st_format_item format_item, char *result, va_list args) {
   if (format_item.specifier == 'X' || format_item.specifier == 'E' || format_item.specifier == 'G') {
       up(result);
   }
+//  printf("selector res = %s\n", result);
 
 }
 
@@ -269,20 +272,25 @@ void do_wide_char(st_format_item format_item, char *result, wchar_t w_c) {
 
 void octal_processing(char *result, va_list args, char *temp,
                       st_format_item format_item, char *formated_temp) {
-  if (format_item.length == 'h') {
+  temp[0] = '0';
+
+
+    if (format_item.length == 'h') {
     int o_value = va_arg(args, int);
     o_value = (short int)o_value;
-    octal_to_string(o_value, temp);
+    octal_to_string(o_value, temp + format_item.grill);
   } else if (format_item.length == 'l') {
     long o_value = va_arg(args, long);
-    octal_to_string(o_value, temp);
+    octal_to_string(o_value, temp + format_item.grill);
   } else {
     int o_value = va_arg(args, int);
-    octal_to_string(o_value, temp);
+    octal_to_string(o_value, temp + format_item.grill);
   }
 
-  precicion_processing(format_item, temp, formated_temp);
-  flags_processing(result, format_item, formated_temp);
+    precicion_processing(format_item, temp, result);
+    // printf("pre = %s\n", result);
+    flags_processing(result, format_item, formated_temp);
+    // printf("fla = %s\n", result);
 }
 
 void octal_to_string(long long octal_value, char *result) {
@@ -312,12 +320,7 @@ void octal_to_string(long long octal_value, char *result) {
 
   result[k] = '\0';
 
-  char tmp = '\0';
-  for (int i = 0; i < k / 2; i++) {
-    tmp = result[i];
-    result[i] = result[k - 1 - i];
-    result[k - 1 - i] = tmp;
-  }
+  reverse_array(result);
 }
 
 void int_processing(char *result, va_list args, char *temp,
@@ -368,24 +371,25 @@ void p_processing(char *result, va_list args, st_format_item format_item,
   } else if (format_item.length == 'l') {
     p_value = (unsigned long int)p_value;
   }
-  hex_u_int_to_string(p_value, temp, format_item);
+  hex_u_int_to_string(p_value, temp);
   precicion_processing(format_item, temp, result);
-  add_ox(result, format_item);
+//  add_ox(result, format_item);
   flags_processing(result, format_item, formated_temp);
 }
 
-void add_ox(char *value, st_format_item format_item) {
-  if (!is_null_values(value) || format_item.specifier == 'p') {
+void add_hex_Ox(char *value, st_format_item format_item) {
+    if(not_all_zeroes(value)) {
     memmove(value + 2, value, strlen(value));
     value[0] = '0';
     value[1] = 'x';
-  }
+//    printf("ad ox = %s\n", value);
+    }
 }
 
-int is_null_values(char *array) {
+int not_all_zeroes(char *array) {
   int result = 0;
   while (*array) {
-    if (*array == '0') {
+    if (*array != '0') {
       result = 1;
     }
     array++;
@@ -395,31 +399,25 @@ int is_null_values(char *array) {
 
 void hex_processing(char *result, va_list args, st_format_item format_item,
                     char *temp, char *formated_temp) {
-//  unsigned long long hex = va_arg(args, unsigned long long);
-/*  if (format_item.length == 'h') {
+  unsigned long long hex = va_arg(args, unsigned long long);
+  if (format_item.length == 'h') {
     hex = (unsigned short)hex;
   } else if (format_item.length == 'l') {
     hex = (unsigned long long)hex;
-  } else*/ {
-      unsigned long long hex = va_arg(args, unsigned int);
+  } else {
     hex = (unsigned)hex;
-    printf("val = %llx\n", hex);
-      hex_u_int_to_string(hex, temp, format_item);
-
-      precicion_processing(format_item, temp, result);
-      if (format_item.grill) {
-        add_ox(result, format_item);
-      }
-      flags_processing(result, format_item, formated_temp);
   }
-//printf("val = %llx\n", hex);
-//  hex_u_int_to_string(hex, temp, format_item);
 
-//  precicion_processing(format_item, temp, result);
-//  if (format_item.grill) {
-//    add_ox(result, format_item);
-//  }
-//  flags_processing(result, format_item, formated_temp);
+  hex_u_int_to_string(hex, temp);
+
+  precicion_processing(format_item, temp, result);
+
+  if (format_item.grill) {
+    add_hex_Ox(result, format_item);
+  }
+
+  flags_processing(result, format_item, formated_temp);
+//  printf("fl res = %s\n", result);
 }
 
 void s_processing(char *result, va_list args, st_format_item format_item) {
@@ -557,13 +555,6 @@ void u_int_to_string(unsigned long long int u_int_value, char *result) {
 
   reverse_array(result);
 
-  // reverse
-//  char tmp = '\0';
-//  for (int i = 0; i < k / 2; i++) {
-//    tmp = result[i];
-//    result[i] = result[k - 1 - i];
-//    result[k - 1 - i] = tmp;
-//  }
 }
 
 char *add_to_string(char *result, char *temp) {
@@ -576,19 +567,14 @@ char *add_to_string(char *result, char *temp) {
   return result;
 }
 
-void hex_u_int_to_string(unsigned long long u_int_value, char *result,
-                         st_format_item format_item) {
+void hex_u_int_to_string(unsigned long long u_int_value, char *result) {
 
   int k = 0;
-  char to_lower_shift = 0;
   char bukva = 0;
+
   if (u_int_value == 0) {
     result[k] = '0';
     k++;
-  }
-
-  if (format_item.specifier == 'X') {
-    to_lower_shift = 32;
   }
 
   while (u_int_value != 0) {
@@ -609,12 +595,6 @@ void hex_u_int_to_string(unsigned long long u_int_value, char *result,
   result[k] = '\0';
 
   reverse_array(result);
-//  char tmp = '\0';
-//  for (int i = 0; i < k / 2; i++) {
-//    tmp = result[i];
-//    result[i] = result[k - 1 - i];
-//    result[k - 1 - i] = tmp;
-//  }
 }
 
 void double_to_string(long double double_value, st_format_item format_item,
@@ -669,15 +649,19 @@ void double_to_string(long double double_value, st_format_item format_item,
       !format_item.precision_set) {
     result = add_to_string(result, ".");
     memset(buf, '\0', BUF_SIZE);
-
+//temp_right *= 10;
     for (int i = 0; i < format_item.precision; i++) {
       temp_right *= 10;
-      if (do_round) {
-        buf[k++] = '0';
-      } else {
-        int_right = floor(temp_right);
-        buf[k++] = int_right % 10 + '0';
-      }
+      printf("temp right = %Lf\n", temp_right);
+//      if (do_round) {
+//        buf[k++] = '0';
+//      } else {
+        int_right = fmodl(temp_right,10);
+        buf[k] = int_right % 10 + '0';
+        printf("buf[%d] = %c\n", k, buf[k]);
+        k++;
+//        temp_right *= 10;
+//      }
     }
     buf[k] = '\0';
     result = add_to_string(result, buf);
@@ -686,6 +670,8 @@ void double_to_string(long double double_value, st_format_item format_item,
 
 long double my_round(long double value, int precision) {
   for (int i = 0; i < precision; i++) value *= 10;
+
+//  long long n = value;
   long double n = 0;
   modfl(value, &n);
   if (value - n >= 0.5) {
@@ -693,6 +679,7 @@ long double my_round(long double value, int precision) {
   }
   value = n;
   for (int i = 0; i < precision; i++) value /= 10;
+  printf("value = %Lf\n", value);
   return value;
 }
 
@@ -746,12 +733,12 @@ void precicion_processing(st_format_item format_item, char *value,
 void flags_processing(char *value, st_format_item format_item, char *temp) {
   //    char tmp[BUF_SIZE + 1] = {'\0'};
   char formated_value[BUF_SIZE] = {'\0'};
-  if (format_item.plus && (format_item.specifier != 'u' /*|| format_item.specifier != 'x' || format_item.specifier != 'X'*/)) {
+  if (format_item.plus && !is_u_int_spec(format_item)) {
     temp[0] = value[0] == '-' ? value[0] : '+';
     add_to_string(temp + 1, value[0] == '-' ? value + 1 : value);
     add_to_string(value, temp);
   } else if (format_item.space && value[0] != '-' &&
-             (format_item.specifier != 'u' /*|| format_item.specifier != 'x' || format_item.specifier != 'X'*/)) {
+             !is_u_int_spec(format_item)) {
     temp[0] = ' ';
     add_to_string(temp + 1, value);
     add_to_string(value, temp);
@@ -776,6 +763,14 @@ void flags_processing(char *value, st_format_item format_item, char *temp) {
     add_to_string(value, temp);
   }
   // printf("flags res = %s\n", value);
+}
+
+int is_u_int_spec(st_format_item format_item) {
+    int result = 0;
+    if(format_item.specifier == 'u' || format_item.specifier == 'x' || format_item.specifier == 'X') {
+        result = 1;
+    }
+    return result;
 }
 
 void e_E_processing(char *result, va_list args, st_format_item format_item,
