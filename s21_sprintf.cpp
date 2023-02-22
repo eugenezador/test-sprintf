@@ -602,7 +602,8 @@ void double_to_string(long double double_value, st_format_item format_item,
   long double left = 0.0, right = 0.0;
   long double temp_right = 0;
   long long int_left = 0;
-  long long int_right = 0;
+  long double int_right = 0;
+  long double t_int_right = 0;
   char buf[BUF_SIZE] = {'\0'};
   int k = 0;  // buf_iterator
   int do_round = 0;
@@ -649,19 +650,21 @@ void double_to_string(long double double_value, st_format_item format_item,
       !format_item.precision_set) {
     result = add_to_string(result, ".");
     memset(buf, '\0', BUF_SIZE);
-//temp_right *= 10;
+
     for (int i = 0; i < format_item.precision; i++) {
+        printf("---\n");
       temp_right *= 10;
       printf("temp right = %Lf\n", temp_right);
 //      if (do_round) {
 //        buf[k++] = '0';
 //      } else {
-        int_right = fmodl(temp_right,10);
-        buf[k] = int_right % 10 + '0';
+        int_right = modfl(temp_right, &t_int_right);
+        printf("int right = %Lf\n", int_right);
+        buf[k] = fmodl(int_right, 10) + '0';
         printf("buf[%d] = %c\n", k, buf[k]);
         k++;
-//        temp_right *= 10;
-//      }
+
+      }
     }
     buf[k] = '\0';
     result = add_to_string(result, buf);
